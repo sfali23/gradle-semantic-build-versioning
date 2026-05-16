@@ -6,7 +6,7 @@ import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.revwalk.RevTag
 import org.eclipse.jgit.revwalk.RevWalk
 import org.eclipse.jgit.transport.URIish
-import org.gradle.internal.impldep.org.apache.commons.lang.RandomStringUtils
+import java.util.UUID
 
 class TestRepository {
     Repository repository
@@ -63,10 +63,10 @@ class TestRepository {
     TestRepository makeChanges() {
         Git git = new Git(repository)
 
-        String fileName = String.format("file-%s", RandomStringUtils.randomAlphanumeric(5))
+        String fileName = String.format("file-%s", UUID.randomUUID().toString().substring(0, 8))
         File file = new File(repository.directory.parentFile.absolutePath, fileName)
         file.createNewFile()
-        file.write(RandomStringUtils.randomAlphanumeric(20))
+        file.write(UUID.randomUUID().toString())
 
         git.add().addFilepattern(fileName).call()
 
