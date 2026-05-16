@@ -1,4 +1,6 @@
 .idea/
 build/
 .gradle
+.metals/**
 *.iml
+settings.json
