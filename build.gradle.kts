@@ -27,7 +27,7 @@ repositories {
     jcenter()
 }
 
-java.sourceCompatibility = JavaVersion.VERSION_1_7
+java.sourceCompatibility = JavaVersion.VERSION_21
 
 project.ext["gradle.publish.key"] = System.getenv("PUBLISH_KEY")
 project.ext["gradle.publish.secret"] = System.getenv("PUBLISH_SECRET")
