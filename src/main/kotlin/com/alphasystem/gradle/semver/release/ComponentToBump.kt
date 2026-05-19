@@ -1,4 +1,4 @@
-package com.alphasystem.gradle.semver.release;
+package com.alphasystem.gradle.semver.release
 
 /**
  * Represents the components of a version that can be incremented during a versioning operation.
@@ -7,7 +7,6 @@ package com.alphasystem.gradle.semver.release;
  * the major, minor, or patch version should be incremented based on specific changes
  * or updates in the application.
  */
-public enum ComponentToBump {
-  
-    MAJOR, MINOR, PATCH;
+enum class ComponentToBump {
+    MAJOR, MINOR, PATCH
 }

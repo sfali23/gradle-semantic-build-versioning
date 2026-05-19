@@ -3,6 +3,7 @@ import net.vivin.gradle.versioning.tasks.TagTask
 plugins {
     id("com.gradle.plugin-publish") version "1.3.0"
     groovy
+    kotlin("jvm") version "2.3.21"
     `maven-publish`
     jacoco
     `java-gradle-plugin`
@@ -30,6 +31,10 @@ java {
 
 tasks.withType<JavaCompile>().configureEach {
     options.release.set(21)
+}
+
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+    compilerOptions.jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
 }
 
 project.ext["gradle.publish.key"] = System.getenv("PUBLISH_KEY")

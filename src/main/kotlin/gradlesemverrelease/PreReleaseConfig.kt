@@ -1,18 +1,17 @@
-package gradlesemverrelease;
+package gradlesemverrelease
 
-import org.eclipse.jgit.util.StringUtils;
-
-import java.util.regex.Pattern;
+import org.eclipse.jgit.util.StringUtils
+import java.util.regex.Pattern
 
 /**
  * Configuration class representing pre-release settings for semantic versioning.
  *
- * This record encapsulates the configuration for generating and parsing
+ * This data class encapsulates the configuration for generating and parsing
  * pre-release version components in semantic versioning.
  * It includes details such as a prefix, separator, and starting version for the pre-release versions.
  *
  * Key Characteristics:
- * - Immutable by design as a record.
+ * - Immutable by design as a data class with @JvmRecord annotation.
  * - Validates the provided values during instantiation to ensure correctness.
  * - Supports default initialization with standard values.
  *
@@ -35,31 +34,35 @@ import java.util.regex.Pattern;
  * - `separator` must not be null or empty.
  * - `startingVersion` must be a positive integer greater than zero.
  */
-public record PreReleaseConfig(String prefix, String separator, int startingVersion) {
-
-    public PreReleaseConfig {
-        validate(prefix, separator, startingVersion);
+@JvmRecord
+data class PreReleaseConfig(
+    val prefix: String,
+    val separator: String,
+    val startingVersion: Int
+) {
+    init {
+        validate(prefix, separator, startingVersion)
     }
 
-    public PreReleaseConfig() {
-        this("RC", ".", 1);
+    constructor() : this("RC", ".", 1)
+
+    fun preReleasePartPattern(): Pattern {
+        val escapedSeparator = separator.replace(".", "\\.")
+        val pattern = "^(?i)($prefix)($escapedSeparator)([1-9]\\d*)$"
+        return Pattern.compile(pattern)
     }
 
-    public Pattern preReleasePartPattern() {
-        String escapedSeparator = separator.replace(".", "\\.");
-        String pattern = "^(?i)(" + prefix + ")(" + escapedSeparator + ")([1-9]\\d*)$";
-        return Pattern.compile(pattern);
-    }
-
-    private static void validate(String prefix, String separator, int startingVersion) {
-        if (StringUtils.isEmptyOrNull(prefix)) {
-            throw new IllegalArgumentException("prefix cannot be null or empty string");
-        }
-        if (StringUtils.isEmptyOrNull(separator)) {
-            throw new IllegalArgumentException("separator cannot be null or empty string");
-        }
-        if (startingVersion <= 0) {
-            throw new IllegalArgumentException("startingVersion must be positive integer greater than 0");
+    companion object {
+        private fun validate(prefix: String, separator: String, startingVersion: Int) {
+            if (StringUtils.isEmptyOrNull(prefix)) {
+                throw IllegalArgumentException("prefix cannot be null or empty string")
+            }
+            if (StringUtils.isEmptyOrNull(separator)) {
+                throw IllegalArgumentException("separator cannot be null or empty string")
+            }
+            if (startingVersion <= 0) {
+                throw IllegalArgumentException("startingVersion must be positive integer greater than 0")
+            }
         }
     }
 }
