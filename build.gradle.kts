@@ -8,7 +8,7 @@ plugins {
     `java-gradle-plugin`
 }
 
-group = "net.vivin"
+group = "io.github.sfali23"
 
 tasks.withType<TagTask> {
     dependsOn(tasks.named("publishPlugins"))
@@ -57,7 +57,7 @@ val createJacocoAgentClasspathFile by tasks.registering {
 }
 
 dependencies {
-    implementation("org.eclipse.jgit:org.eclipse.jgit:4.8.0.201706111038-r")
+    implementation("org.eclipse.jgit:org.eclipse.jgit:7.6.0.202603022253-r")
 
     testImplementation("org.eclipse.jgit:org.eclipse.jgit.junit:4.8.0.201706111038-r")
     testImplementation("org.jmockit:jmockit:1.28")
