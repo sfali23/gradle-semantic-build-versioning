@@ -22,8 +22,15 @@ repositories {
     gradlePluginPortal()
 }
 
-java.sourceCompatibility = JavaVersion.VERSION_25
-java.targetCompatibility = JavaVersion.VERSION_21
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(25))
+    }
+}
+
+tasks.withType<JavaCompile>().configureEach {
+    options.release.set(21)
+}
 
 project.ext["gradle.publish.key"] = System.getenv("PUBLISH_KEY")
 project.ext["gradle.publish.secret"] = System.getenv("PUBLISH_SECRET")
@@ -60,7 +67,7 @@ val createJacocoAgentClasspathFile by tasks.registering {
 dependencies {
     implementation("org.eclipse.jgit:org.eclipse.jgit:7.6.0.202603022253-r")
 
-    testImplementation("org.eclipse.jgit:org.eclipse.jgit.junit:4.8.0.201706111038-r")
+    testImplementation("org.eclipse.jgit:org.eclipse.jgit.junit:7.6.0.202603022253-r")
     testImplementation("org.jmockit:jmockit:1.28")
     testImplementation("org.spockframework:spock-core:2.3-groovy-4.0") {
         exclude(group = "org.codehaus.groovy", module = "groovy-all")

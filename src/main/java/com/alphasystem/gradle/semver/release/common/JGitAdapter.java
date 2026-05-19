@@ -16,6 +16,11 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+/**
+ * Provides an adapter for interacting with a Git repository using the JGit library.
+ * This class supports various Git-related operations such as retrieving commits, branches,
+ * tags, and analyzing repository states.
+ */
 public class JGitAdapter {
     private final Repository repository;
     private Git git;
