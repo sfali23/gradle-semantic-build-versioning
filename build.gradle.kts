@@ -38,6 +38,8 @@ project.ext["gradle.publish.secret"] = System.getenv("PUBLISH_SECRET")
 sourceSets.main.get().java.srcDirs.clear()
 sourceSets.main.get().groovy.srcDir("src/main/java")
 
+sourceSets.test.get().java.srcDir("src/test/java")
+
 val createPluginClasspathFile by tasks.registering {
     inputs.files(sourceSets.main.get().runtimeClasspath)
     outputs.dir(temporaryDir)
@@ -68,10 +70,12 @@ dependencies {
     implementation("org.eclipse.jgit:org.eclipse.jgit:7.6.0.202603022253-r")
 
     testImplementation("org.eclipse.jgit:org.eclipse.jgit.junit:7.6.0.202603022253-r")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.5.0")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher:1.5.0")
     testImplementation("org.jmockit:jmockit:1.28")
-    testImplementation("org.spockframework:spock-core:2.3-groovy-4.0") {
+   /* testImplementation("org.spockframework:spock-core:2.3-groovy-4.0") {
         exclude(group = "org.codehaus.groovy", module = "groovy-all")
-    }
+    }*/
     testRuntimeOnly("cglib:cglib-nodep:3.2.4")
     testRuntimeOnly("org.objenesis:objenesis:2.5.1")
 
@@ -112,6 +116,8 @@ tasks.test {
     
     // Don't fail if no tests are discovered (test compatibility needs fixing)
     failOnNoDiscoveredTests = false
+    
+    useJUnitPlatform()
 }
 
 

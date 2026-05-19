@@ -46,7 +46,9 @@ public record PreReleaseConfig(String prefix, String separator, int startingVers
     }
 
     public Pattern preReleasePartPattern() {
-        return Pattern.compile(String.format("^(%s)(%s)([1-9]\\\\d*)$", prefix, separator));
+        String escapedSeparator = separator.replace(".", "\\.");
+        String pattern = "^(?i)(" + prefix + ")(" + escapedSeparator + ")([1-9]\\d*)$";
+        return Pattern.compile(pattern);
     }
 
     private static void validate(String prefix, String separator, int startingVersion) {

@@ -8,7 +8,6 @@ import org.eclipse.jgit.util.StringUtils;
  * This record encapsulates a pre-release version with three parts:
  * - A mandatory prefix representing the type or identifier of the pre-release version.
  * - A mandatory version number, which must be an integer.
- * - An optional suffix that can include additional metadata or qualifiers.
  *
  * Key Characteristics:
  * - The prefix must not be null or empty.
@@ -22,25 +21,26 @@ import org.eclipse.jgit.util.StringUtils;
  *
  * Key Behaviors:
  * - Instantiation with validation*/
-public record PreReleaseVersion(String prefix, Integer version, String suffix) {
-    public PreReleaseVersion {
+public record PreReleaseVersion(String prefix, Integer version) {
+
+    public PreReleaseVersion updatePrefix(String prefix) {
         if (StringUtils.isEmptyOrNull(prefix)) {
-            throw new IllegalArgumentException("Prefix cannot be empty");
+            return this;
+        } else {
+            final var currentPrefix = (StringUtils.isEmptyOrNull(this.prefix)) ? "" : this.prefix;
+            return new PreReleaseVersion(String.format("%s%s", currentPrefix, prefix), version);
         }
-        if (version == null) {
-            throw new IllegalArgumentException("Version cannot be empty");
-        }
+    }
+
+    public PreReleaseVersion updateVersion(Integer version) {
+        return new PreReleaseVersion(prefix, version);
     }
 
     public PreReleaseVersion bumpVersion() {
-        return new PreReleaseVersion(prefix, version + 1, suffix);
+        return new PreReleaseVersion(prefix, version + 1);
     }
 
     public String toStringValue() {
-        var suffixValue = "";
-        if (!StringUtils.isEmptyOrNull(suffix)) {
-            suffixValue = "+" + suffix;
-        }
-        return String.format("-%s%s%s", prefix, version, suffixValue);
+        return String.format("-%s%s", prefix, version);
     }
 }
