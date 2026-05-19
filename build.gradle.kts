@@ -22,7 +22,8 @@ repositories {
     gradlePluginPortal()
 }
 
-java.sourceCompatibility = JavaVersion.VERSION_21
+java.sourceCompatibility = JavaVersion.VERSION_25
+java.targetCompatibility = JavaVersion.VERSION_21
 
 project.ext["gradle.publish.key"] = System.getenv("PUBLISH_KEY")
 project.ext["gradle.publish.secret"] = System.getenv("PUBLISH_SECRET")
