@@ -2,7 +2,7 @@ package com.alphasystem.gradle.semver.release.internal
 
 import com.alphasystem.gradle.semver.release.VersionComponent
 import gradlesemverrelease.PreReleaseConfig
-import java.util.*
+import java.util.Optional
 import java.util.regex.Pattern
 
 /**
@@ -13,7 +13,7 @@ import java.util.regex.Pattern
  *
  * The class enforces validation of the version components during instantiation to ensure correctness.
  */
- @JvmRecord
+@JvmRecord
 data class Version(
     val major: Int,
     val minor: Int,
@@ -24,9 +24,41 @@ data class Version(
     val preReleaseConfig: PreReleaseConfig
 ) {
     companion object {
-        private val VERSION_REGEX = Pattern.compile("^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?(?:\\.(0|[1-9]\\d*))?$")
+        private val VERSION_REGEX =
+            Pattern.compile("^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?(?:\\.(0|[1-9]\\d*))?$")
 
-        val VERSION_COMPARATOR: Comparator<Version> = VersionComparator()
+        private class VersionComparator : Comparator<Version> {
+            override fun compare(v1: Version, v2: Version): Int {
+                val list = mutableListOf<Tuple>()
+                list.add(Tuple(v2.major, v1.major))
+                list.add(Tuple(v2.minor, v1.minor))
+                list.add(Tuple(v2.patch, v1.patch))
+                list.add(Tuple(v2.hotfix ?: 0, v1.hotfix ?: 0))
+                list.add(Tuple(v2.preRelease?.version ?: Int.MAX_VALUE, v1.preRelease?.version ?: Int.MAX_VALUE))
+                return compareTo(list)
+            }
+
+            private fun compareTo(tuples: List<Tuple>): Int {
+                if (tuples.isEmpty()) {
+                    return 0
+                }
+                val head = tuples.first()
+                val comparison = head.first.compareTo(head.second)
+                return if (comparison == 0) {
+                    compareTo(tuples.subList(1, tuples.size))
+                } else {
+                    comparison
+                }
+            }
+        }
+
+        private data class Tuple(val first: Int, val second: Int)
+
+        val VERSION_COMPARATOR = Comparator<Version> { v1, v2 ->
+            VersionComparator().compare(v1, v2)
+        }
+
+
 
         /**
          * Applies transformations to a version string, parsing it into components of a {@link Version} object.
@@ -159,8 +191,10 @@ data class Version(
 
     private fun bumpPreRelease(): Version {
         if (preRelease == null) {
-            throw IllegalArgumentException("Cannot bump pre-release because the latest version is not a pre-release version." +
-                    " To create a new pre-release version, use newPreRelease instead")
+            throw IllegalArgumentException(
+                "Cannot bump pre-release because the latest version is not a pre-release version." +
+                        " To create a new pre-release version, use newPreRelease instead"
+            )
         }
         return Version(major, minor, patch, hotfix, preRelease.bumpVersion(), snapshot, preReleaseConfig)
     }
@@ -179,31 +213,4 @@ data class Version(
     private fun bumpSnapshot(snapshot: Snapshot?): Version {
         return Version(major, minor, patch, hotfix, preRelease, snapshot, preReleaseConfig)
     }
-
-    private class VersionComparator : Comparator<Version> {
-        override fun compare(v1: Version, v2: Version): Int {
-            val list = mutableListOf<Tuple>()
-            list.add(Tuple(v2.major, v1.major))
-            list.add(Tuple(v2.minor, v1.minor))
-            list.add(Tuple(v2.patch, v1.patch))
-            list.add(Tuple(v2.hotfix ?: 0, v1.hotfix ?: 0))
-            list.add(Tuple(v2.preRelease?.version ?: Int.MAX_VALUE, v1.preRelease?.version ?: Int.MAX_VALUE))
-            return compareTo(list)
-        }
-
-        private fun compareTo(tuples: List<Tuple>): Int {
-            if (tuples.isEmpty()) {
-                return 0
-            }
-            val head = tuples.first()
-            val comparison = head.first.compareTo(head.second)
-            return if (comparison == 0) {
-                compareTo(tuples.subList(1, tuples.size))
-            } else {
-                comparison
-            }
-        }
-    }
-
-    private data class Tuple(val first: Int, val second: Int)
 }
