@@ -12,4 +12,4 @@ test:
 spotless:
 	$(GRADLE) spotlessApply
 
-all: clean build test
+all: clean build src/test
