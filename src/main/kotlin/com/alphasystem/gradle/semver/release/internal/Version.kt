@@ -143,12 +143,6 @@ data class Version(
         }
     }
 
-    init {
-        if (preReleaseConfig == null) {
-            throw IllegalArgumentException("PreReleaseConfig cannot be null")
-        }
-    }
-
     fun isHotfix(): Boolean {
         return hotfix != null
     }
