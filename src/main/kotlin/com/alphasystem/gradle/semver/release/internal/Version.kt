@@ -58,8 +58,6 @@ data class Version(
             VersionComparator().compare(v1, v2)
         }
 
-
-
         /**
          * Applies transformations to a version string, parsing it into components of a {@link Version} object.
          *
