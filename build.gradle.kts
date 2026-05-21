@@ -89,7 +89,7 @@ sourceSets.test
     .resources
     .srcDir("src/test/resources")
 
-sourceSets["integrationTest"].java.srcDir("src/integrationTest/java")
+sourceSets["integrationTest"].java.srcDir("src/integrationTest/kotlin")
 sourceSets["integrationTest"].resources.srcDir("src/integrationTest/resources")
 
 val createPluginClasspathFile by tasks.registering {
@@ -177,9 +177,6 @@ tasks.test {
     }
     environment("message", "test env")
     environment("emptyMessage", "")
-    /*extensions.configure(JacocoTaskExtension::class) {
-        includes = listOf("net.vivin.gradle.versioning.*")
-    }*/
     finalizedBy(tasks.jacocoTestReport)
     doFirst {
         delete(
