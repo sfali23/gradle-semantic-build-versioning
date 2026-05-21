@@ -21,7 +21,7 @@ class VersionTest {
     companion object {
         private val DEFAULT_CONFIG = PreReleaseConfig()
         private val DEFAULT_SNAPSHOT = Snapshot()
-        private val DEFAULT_SNAPSHOT_SUFFIX = DEFAULT_SNAPSHOT.suffix
+        private val DEFAULT_SNAPSHOT_PREFIX = DEFAULT_SNAPSHOT.prefix
         private val DEFAULT_PRE_RELEASE = PreReleaseVersion(DEFAULT_CONFIG)
     }
 
@@ -32,7 +32,7 @@ class VersionTest {
         @Test
         @DisplayName("Should parse version with major, minor, patch")
         fun shouldParseSimpleVersion() {
-            val actual = Version.create("0.12.345", DEFAULT_SNAPSHOT_SUFFIX, DEFAULT_CONFIG)
+            val actual = Version.create("0.12.345", DEFAULT_SNAPSHOT_PREFIX, DEFAULT_CONFIG)
             val expected = Version(0, 12, 345, null, null, null, DEFAULT_CONFIG)
             assertEquals(expected, actual)
         }
@@ -40,7 +40,7 @@ class VersionTest {
         @Test
         @DisplayName("Should parse version with hotfix")
         fun shouldParseVersionWithHotfix() {
-            val actual = Version.create("1.2.3.4", DEFAULT_SNAPSHOT_SUFFIX, DEFAULT_CONFIG)
+            val actual = Version.create("1.2.3.4", DEFAULT_SNAPSHOT_PREFIX, DEFAULT_CONFIG)
             val expected = Version(1, 2, 3, 4, null, null, DEFAULT_CONFIG)
             assertEquals(expected, actual)
         }
@@ -48,7 +48,7 @@ class VersionTest {
         @Test
         @DisplayName("Should parse version with pre-release")
         fun shouldParseVersionWithPreRelease() {
-            val actual = Version.create("1.2.3-RC.1", DEFAULT_SNAPSHOT_SUFFIX, DEFAULT_CONFIG)
+            val actual = Version.create("1.2.3-RC.1", DEFAULT_SNAPSHOT_PREFIX, DEFAULT_CONFIG)
             val expected = Version(1, 2, 3, null, PreReleaseVersion("RC", DEFAULT_CONFIG.separator, 1), null, DEFAULT_CONFIG)
             assertEquals(actual, expected)
         }
@@ -56,10 +56,10 @@ class VersionTest {
         @Test
         @DisplayName("Should parse version with all components")
         fun shouldParseVersionWithAllComponents() {
-            val actual = Version.create("1.2.3-RC.1-SNAPSHOT+abcd", DEFAULT_SNAPSHOT_SUFFIX, DEFAULT_CONFIG)
+            val actual = Version.create("1.2.3-RC.1-SNAPSHOT+abcd", DEFAULT_SNAPSHOT_PREFIX, DEFAULT_CONFIG)
             val expected = Version(
                 1, 2, 3, null, PreReleaseVersion("RC", DEFAULT_CONFIG.separator, 1),
-                Snapshot(DEFAULT_SNAPSHOT_SUFFIX, "abcd"), DEFAULT_CONFIG
+                Snapshot(DEFAULT_SNAPSHOT_PREFIX, "abcd"), DEFAULT_CONFIG
             )
             assertEquals(actual, expected)
         }
@@ -67,10 +67,10 @@ class VersionTest {
         @Test
         @DisplayName("Should parse version with snapshot component")
         fun shouldParseVersionWithSnapshotComponent() {
-            val actual = Version.create("1.2.3-SNAPSHOT+abcd", DEFAULT_SNAPSHOT_SUFFIX, DEFAULT_CONFIG)
+            val actual = Version.create("1.2.3-SNAPSHOT+abcd", DEFAULT_SNAPSHOT_PREFIX, DEFAULT_CONFIG)
             val expected = Version(
                 1, 2, 3, null, null,
-                Snapshot(DEFAULT_SNAPSHOT_SUFFIX, "abcd"), DEFAULT_CONFIG
+                Snapshot(DEFAULT_SNAPSHOT_PREFIX, "abcd"), DEFAULT_CONFIG
             )
             assertEquals(actual, expected)
         }
@@ -80,7 +80,7 @@ class VersionTest {
         fun shouldParseVersionWithHotfixAndPreRelease() {
             // Note: Based on the regex pattern, hotfix and pre-release cannot be combined.
             // This test demonstrates the current limitation
-            val actual = Version.create("1.2.3.4", DEFAULT_SNAPSHOT_SUFFIX, DEFAULT_CONFIG)
+            val actual = Version.create("1.2.3.4", DEFAULT_SNAPSHOT_PREFIX, DEFAULT_CONFIG)
             val expected = Version(1, 2, 3, 4, null, null, DEFAULT_CONFIG)
             assertEquals(actual, expected)
         }
@@ -94,7 +94,7 @@ class VersionTest {
         )
         @DisplayName("Should parse valid semantic version formats")
         fun shouldParseValidSemanticVersions(versionString: String) {
-            val version = Version.create(versionString, DEFAULT_SNAPSHOT_SUFFIX, DEFAULT_CONFIG)
+            val version = Version.create(versionString, DEFAULT_SNAPSHOT_PREFIX, DEFAULT_CONFIG)
             assertNotNull(version)
             assertTrue(version.major >= 0)
             assertTrue(version.minor >= 0)
@@ -113,14 +113,14 @@ class VersionTest {
             assertThrows<IllegalArgumentException>(
                 "Expected IllegalArgumentException for invalid version: $versionString"
             ) {
-                Version.create(versionString, DEFAULT_SNAPSHOT_SUFFIX, DEFAULT_CONFIG)
+                Version.create(versionString, DEFAULT_SNAPSHOT_PREFIX, DEFAULT_CONFIG)
             }
         }
 
         @Test
         @DisplayName("Should parse version with zero values")
         fun shouldParseVersionWithZeroValues() {
-            val version = Version.create("0.0.0", DEFAULT_SNAPSHOT_SUFFIX, DEFAULT_CONFIG)
+            val version = Version.create("0.0.0", DEFAULT_SNAPSHOT_PREFIX, DEFAULT_CONFIG)
             assertEquals(0, version.major)
             assertEquals(0, version.minor)
             assertEquals(0, version.patch)
@@ -132,7 +132,7 @@ class VersionTest {
         @Test
         @DisplayName("Should parse version with large numbers")
         fun shouldParseVersionWithLargeNumbers() {
-            val version = Version.create("999.888.777", DEFAULT_SNAPSHOT_SUFFIX, DEFAULT_CONFIG)
+            val version = Version.create("999.888.777", DEFAULT_SNAPSHOT_PREFIX, DEFAULT_CONFIG)
             assertEquals(999, version.major)
             assertEquals(888, version.minor)
             assertEquals(777, version.patch)
