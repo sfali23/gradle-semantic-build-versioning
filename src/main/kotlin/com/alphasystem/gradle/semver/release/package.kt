@@ -10,6 +10,6 @@ val DefaultHotfixBranchPattern: Regex = initializeHotfixBranchPattern()
 val DefaultReleaseBranches: List<String> = listOf("main", "master")
 
 fun initializeHotfixBranchPattern(tagPrefix: String = DefaultTagPrefix): Regex =
-    "^$tagPrefix(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\+\\$".toRegex()
+    "^$tagPrefix(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\+$".toRegex()
 
 fun Regex.nonEmpty(input: String) = this.find(input) != null

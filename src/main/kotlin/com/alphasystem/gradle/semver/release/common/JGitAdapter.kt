@@ -50,25 +50,14 @@ class JGitAdapter(private val workingDir: File) {
     @Throws(GitAPIException::class)
     fun getTagsForCurrentBranch(): List<String> {
         val tags = getGit().tagList().call().stream()
-            .collect(
-                Collectors.groupingBy { tagRef: Ref ->
-                    try {
-                        getRevWalk().parseCommit(getNonNullObjectId(tagRef)).id
-                    } catch (e: Exception) {
-                        throw RuntimeException(e)
-                    }
-                })
+            .collect(Collectors.groupingBy { tagRef: Ref -> getRevWalk().parseCommit(getNonNullObjectId(tagRef)).id })
 
-        try {
-            val ref = repository.resolve(repository.branch)
-            if (ref != null) {
-                return StreamSupport.stream(getGit().log().add(ref).call().spliterator(), false)
-                    .flatMap { rev: RevCommit -> tags.getOrDefault(rev.id, emptyList()).stream() }
-                    .map { tagRef: Ref -> tagRef.name.replace(Constants.R_TAGS, "") }
-                    .collect(Collectors.toList())
-            }
-        } catch (e: Exception) {
-            // Ignore exception and return empty list
+        val ref = repository.resolve(repository.branch)
+        if (ref != null) {
+            return StreamSupport.stream(getGit().log().add(ref).call().spliterator(), false)
+                .flatMap { rev: RevCommit -> tags.getOrDefault(rev.id, emptyList()).stream() }
+                .map { tagRef: Ref -> tagRef.name.replace(Constants.R_TAGS, "") }
+                .collect(Collectors.toList())
         }
         return emptyList()
     }

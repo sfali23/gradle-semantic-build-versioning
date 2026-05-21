@@ -215,11 +215,11 @@ class TestRepository(repository: Repository) {
     companion object {
         private val logger = LoggerFactory.getLogger(TestRepository::class.java)
 
-        fun apply(repository: Repository): TestRepository {
+        fun create(repository: Repository): TestRepository {
             return TestRepository(repository)
         }
 
-        fun apply(workingDir: File): TestRepository {
+        fun create(workingDir: File): TestRepository {
             if (!workingDir.exists()) {
                 workingDir.mkdirs()
             }

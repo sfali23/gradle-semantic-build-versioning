@@ -154,12 +154,10 @@ data class Version(
     }
 
     fun toStringValue(): String {
-        return String.format(
-            "%d.%d.%d%s%s",
-            major, minor, patch,
-            hotfix?.let { ".$it" } ?: "",
-            preRelease?.toStringValue() ?: ""
-        )
+        val hotfixV = hotfix?.let { ".$it" } ?: ""
+        val preReleaseV = preRelease?.toStringValue() ?: ""
+        val snapshotV = snapshot?.toStringValue() ?: ""
+        return "$major.$minor.$patch$hotfixV$preReleaseV$snapshotV"
     }
 
     private fun bumpMajor(): Version {
@@ -195,7 +193,7 @@ data class Version(
         if (preRelease != null) {
             throw IllegalArgumentException("Current version is already pre-release")
         }
-        return Version(major, minor, patch, hotfix, toInitialPreReleaseVersion(preReleaseConfig), snapshot, preReleaseConfig)
+        return Version(major, minor, patch, hotfix, PreReleaseVersion.create(preReleaseConfig), snapshot, preReleaseConfig)
     }
 
     private fun promoteToRelease(): Version {

@@ -1,5 +1,6 @@
 package com.alphasystem.gradle.semver.release.internal
 
+import gradlesemverrelease.PreReleaseConfig
 import org.eclipse.jgit.util.StringUtils
 
 /**
@@ -24,26 +25,32 @@ import org.eclipse.jgit.util.StringUtils
  */
 data class PreReleaseVersion(
     val prefix: String?,
-    val version: Int
+    val version: Int,
+    val separator: String?
 ) {
     fun updatePrefix(prefix: String?): PreReleaseVersion {
         return if (StringUtils.isEmptyOrNull(prefix)) {
             this
         } else {
             val currentPrefix = if (StringUtils.isEmptyOrNull(this.prefix)) "" else this.prefix
-            PreReleaseVersion(String.format("%s%s", currentPrefix, prefix), version)
+            PreReleaseVersion(String.format("%s%s", currentPrefix, prefix), version, separator)
         }
     }
 
     fun updateVersion(version: Int): PreReleaseVersion {
-        return PreReleaseVersion(prefix, version)
+        return PreReleaseVersion(prefix, version, separator)
     }
 
     fun bumpVersion(): PreReleaseVersion {
-        return PreReleaseVersion(prefix, version + 1)
+        return PreReleaseVersion(prefix, version + 1, separator)
     }
 
     fun toStringValue(): String {
-        return String.format("-%s%s", prefix, version)
+        return String.format("-%s%s%s", prefix, separator ?: "", version)
+    }
+
+    companion object {
+        fun create(preReleaseConfig: PreReleaseConfig): PreReleaseVersion =
+            PreReleaseVersion(preReleaseConfig.prefix, preReleaseConfig.startingVersion, preReleaseConfig.separator)
     }
 }

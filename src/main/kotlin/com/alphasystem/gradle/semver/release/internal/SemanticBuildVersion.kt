@@ -29,32 +29,33 @@ class SemanticBuildVersion(workingDir: File, val baseConfig: SemanticBuildVersio
     fun determineVersion(): String {
         val currentBranch = adapter.getCurrentBranch()
         val hotfixRequired = baseConfig.hotfixBranchPattern.nonEmpty(currentBranch)
-        val snapshotRequired = {
-            val notAReleaseBranch = !baseConfig.isReleaseBranch(currentBranch)
-            val hasUncommitedChanges = adapter.hasUncommittedChanges()
-            val snapshotFlag = baseConfig.snapshot
-            if (notAReleaseBranch) {
-                logger.warn(
-                    "Current configuration doesn't allow to create new tag from current branch ({}), creating snapshot version",
-                    currentBranch
-                )
-            }
-            if (hasUncommitedChanges) {
-                logger.warn("Current branch ({}) has uncommitted changes, creating snapshot version", currentBranch)
-            }
-            if (snapshotFlag) {
-                logger.warn("Snapshot flag is set to true, creating snapshot version")
-            }
-            (notAReleaseBranch || hasUncommitedChanges || snapshotFlag) && !hotfixRequired
-        }
-
+        val snapshotRequired = snapshotRequired(currentBranch, hotfixRequired)
         val maybeLatestVersion = latestVersion()
         val currentVersion = maybeLatestVersion ?: startingVersion
-        val newVersion = determineVersion(currentVersion, hotfixRequired, snapshotRequired(), maybeLatestVersion)
+        val newVersion = determineVersion(currentVersion, hotfixRequired, snapshotRequired, maybeLatestVersion)
         if (currentVersion == newVersion && maybeLatestVersion != null) {
             throw IllegalArgumentException("Couldn't determine next version, tag (${newVersion.toStringValue()}) is already exists.")
         }
         return newVersion.toStringValue()
+    }
+
+    private fun snapshotRequired(currentBranch: String, hotfixRequired: Boolean): Boolean {
+        val notAReleaseBranch = !baseConfig.isReleaseBranch(currentBranch)
+        val hasUncommitedChanges = adapter.hasUncommittedChanges()
+        val snapshotFlag = baseConfig.snapshot
+        if (notAReleaseBranch) {
+            logger.warn(
+                "Current configuration doesn't allow to create new tag from current branch ({}), creating snapshot version",
+                currentBranch
+            )
+        }
+        if (hasUncommitedChanges) {
+            logger.warn("Current branch ({}) has uncommitted changes, creating snapshot version", currentBranch)
+        }
+        if (snapshotFlag) {
+            logger.warn("Snapshot flag is set to true, creating snapshot version")
+        }
+        return (notAReleaseBranch || hasUncommitedChanges || snapshotFlag) && !hotfixRequired
     }
 
     internal fun determineVersion(

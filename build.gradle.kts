@@ -66,19 +66,31 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach 
 project.ext["gradle.publish.key"] = System.getenv("PUBLISH_KEY")
 project.ext["gradle.publish.secret"] = System.getenv("PUBLISH_SECRET")
 
-sourceSets.main
-    .get()
-    .java.srcDirs
-    .clear()
+// Keep Java source directories separate from Groovy to avoid duplicate compilation
 sourceSets.main
     .get()
     .groovy
-    .srcDir("src/main/java")
+    .srcDir("src/main/groovy")
+
+// Create separate source sets for unit tests and integration tests
+sourceSets {
+    create("integrationTest") {
+        compileClasspath += sourceSets.main.get().output
+        runtimeClasspath += sourceSets.main.get().output
+    }
+}
 
 sourceSets.test
     .get()
     .java
     .srcDir("src/test/java")
+sourceSets.test
+    .get()
+    .resources
+    .srcDir("src/test/resources")
+
+sourceSets["integrationTest"].java.srcDir("src/integrationTest/java")
+sourceSets["integrationTest"].resources.srcDir("src/integrationTest/resources")
 
 val createPluginClasspathFile by tasks.registering {
     inputs.files(sourceSets.main.get().runtimeClasspath)
@@ -114,19 +126,30 @@ dependencies {
     implementation("org.eclipse.jgit:org.eclipse.jgit:7.6.0.202603022253-r")
 
     testImplementation("org.eclipse.jgit:org.eclipse.jgit.junit:7.6.0.202603022253-r")
-    testImplementation("org.junit.jupiter:junit-jupiter:5.5.0")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher:1.5.0")
-    testImplementation("org.jmockit:jmockit:1.28")
-   /* testImplementation("org.spockframework:spock-core:2.3-groovy-4.0") {
-        exclude(group = "org.codehaus.groovy", module = "groovy-all")
-    }*/
-    testRuntimeOnly("cglib:cglib-nodep:3.2.4")
-    testRuntimeOnly("org.objenesis:objenesis:2.5.1")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
+    testImplementation("com.typesafe:config:1.4.8")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher:1.10.0")
+
+    // Integration test dependencies (including Cucumber)
+    "integrationTestImplementation"("org.eclipse.jgit:org.eclipse.jgit.junit:7.6.0.202603022253-r")
+    "integrationTestImplementation"("org.junit.jupiter:junit-jupiter:5.10.0")
+    "integrationTestImplementation"("org.junit.platform:junit-platform-suite:1.10.0")
+    "integrationTestImplementation"("com.typesafe:config:1.4.8")
+    "integrationTestImplementation"("io.cucumber:cucumber-java:7.14.0")
+    "integrationTestImplementation"("io.cucumber:cucumber-junit-platform-engine:7.14.0")
+    "integrationTestImplementation"("io.cucumber:cucumber-expressions:16.1.2")
+    "integrationTestRuntimeOnly"("org.junit.platform:junit-platform-launcher:1.10.0")
+    
+    // Integration tests need access to test source
+    "integrationTestImplementation"(sourceSets.test.get().output)
+    "integrationTestImplementation"(sourceSets.test.get().compileClasspath)
 
     add("jacocoRuntime", "org.jacoco:org.jacoco.agent:${jacoco.toolVersion}:runtime")
 
     testRuntimeOnly(files(createPluginClasspathFile.get()))
     testRuntimeOnly(files(createJacocoAgentClasspathFile.get()))
+    "integrationTestRuntimeOnly"(files(createPluginClasspathFile.get()))
+    "integrationTestRuntimeOnly"(files(createJacocoAgentClasspathFile.get()))
 }
 
 tasks.jacocoTestReport {
@@ -144,15 +167,19 @@ if (project.hasProperty("disableGroovyOptimizations")) {
     }
 }
 
+tasks.processTestResources {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
 tasks.test {
     if (System.getenv("CIRCLECI") != null) {
         maxHeapSize = "1G"
     }
     environment("message", "test env")
     environment("emptyMessage", "")
-    extensions.configure(JacocoTaskExtension::class) {
+    /*extensions.configure(JacocoTaskExtension::class) {
         includes = listOf("net.vivin.gradle.versioning.*")
-    }
+    }*/
     finalizedBy(tasks.jacocoTestReport)
     doFirst {
         delete(
@@ -167,7 +194,41 @@ tasks.test {
     // Don't fail if no tests are discovered (test compatibility needs fixing)
     failOnNoDiscoveredTests = false
 
-    useJUnitPlatform()
+    // Unit tests only - exclude cucumber engine
+    useJUnitPlatform {
+        includeEngines("junit-jupiter")
+        excludeEngines("cucumber")
+    }
+}
+
+tasks.named<ProcessResources>("processIntegrationTestResources") {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+// Create integration test task for cucumber tests
+val integrationTest = tasks.register<Test>("integrationTest") {
+    description = "Runs integration tests (including Cucumber)"
+    group = "verification"
+    
+    testClassesDirs = sourceSets["integrationTest"].output.classesDirs
+    classpath = sourceSets["integrationTest"].runtimeClasspath
+    
+    if (System.getenv("CIRCLECI") != null) {
+        maxHeapSize = "1G"
+    }
+    
+    // Don't fail if no tests are discovered
+    failOnNoDiscoveredTests = false
+
+    useJUnitPlatform {
+        includeEngines("junit-jupiter", "cucumber")
+    }
+
+    systemProperty("cucumber.junit-platform-engine.enabled", "true")
+    systemProperty("cucumber.features", "classpath:features")
+    systemProperty("cucumber.glue", "steps")
+    
+    shouldRunAfter(tasks.test)
 }
 
 tasks.withType<Jar>().configureEach {
