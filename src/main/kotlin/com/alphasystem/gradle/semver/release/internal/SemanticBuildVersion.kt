@@ -58,7 +58,7 @@ class SemanticBuildVersion(workingDir: File, val baseConfig: SemanticBuildVersio
         return (notAReleaseBranch || hasUncommitedChanges || snapshotFlag) && !hotfixRequired
     }
 
-    internal fun determineVersion(
+    private fun determineVersion(
         currentVersion: Version,
         hotfixRequired: Boolean,
         snapshotRequired: Boolean,
@@ -193,7 +193,7 @@ class SemanticBuildVersion(workingDir: File, val baseConfig: SemanticBuildVersio
             }
         } else null
 
-        return hash?.let { Snapshot(snapshotSuffix, it) }
+        return Snapshot(snapshotSuffix, hash)
     }
 
     private fun addDefaultComponent(versionComponent: VersionComponent): () -> Boolean {
