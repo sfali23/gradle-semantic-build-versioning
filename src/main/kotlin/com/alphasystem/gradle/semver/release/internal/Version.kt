@@ -2,7 +2,7 @@ package com.alphasystem.gradle.semver.release.internal
 
 import com.alphasystem.gradle.semver.release.VersionComponent
 import gradlesemverrelease.PreReleaseConfig
-import java.util.Optional
+import java.util.regex.Matcher
 import java.util.regex.Pattern
 
 /**
@@ -93,35 +93,45 @@ data class Version(
             val maybePreReleaseOrSnapshot = getMatchedGroup(matcher, 4)
             val metaInfo = getMatchedGroup(matcher, 5)
 
-            val maybePreReleaseVersion = maybePreReleaseOrSnapshot
-                .map { value -> value.replace("-$snapshotSuffix", "") }
-                .filter { value -> value.isNotEmpty() }
-                .map { value -> toPreReleaseVersion(value, preReleaseConfig) }
+            val preReleaseVersion =
+                maybePreReleaseOrSnapshot?.replace(snapshotSuffix, "")
+                    ?.let { sanitizePreReleaseOrSnapshotVersion(it) }
+                    ?.let { preReleaseConfig.toPreReleaseVersion(it) }
 
-            val maybeSnapshot = maybePreReleaseOrSnapshot
-                .map { value -> value.replace(preReleaseConfig.preReleasePartPattern().pattern(), "") }
-                .filter { value -> value.contains(snapshotSuffix) }
-                .map { _ -> Snapshot(snapshotSuffix, metaInfo.orElse(null)) }
+            val snapshot =
+                maybePreReleaseOrSnapshot?.replace(preReleaseConfig.preReleasePartPattern().pattern(), "")
+                    ?.let { if (it.contains(snapshotSuffix)) Snapshot(snapshotSuffix, metaInfo) else null }
 
-            val hotfix = getMatchedGroup(matcher, 6).map { it.toInt() }
+            val hotfix = getMatchedGroup(matcher, 6)?.toInt()
 
             return Version(
                 matcher.group(1).toInt(),
                 matcher.group(2).toInt(),
                 matcher.group(3).toInt(),
-                hotfix.orElse(null),
-                maybePreReleaseVersion.orElse(null),
-                maybeSnapshot.orElse(null),
+                hotfix,
+                preReleaseVersion,
+                snapshot,
                 preReleaseConfig
             )
         }
 
-        private fun getMatchedGroup(matcher: java.util.regex.Matcher, group: Int): Optional<String> {
+        private fun getMatchedGroup(matcher: Matcher, group: Int): String? {
             return try {
-                Optional.ofNullable(matcher.group(group))
+                matcher.group(group)
             } catch (_: Exception) {
-                Optional.empty()
+                null
             }
+        }
+
+        /**
+         * We use "-" as a separator between pre-release and snapshot version. If both versions are present then we need to remove the
+         * trailing "-" to make it a legal pre-release version
+         */
+        private fun sanitizePreReleaseOrSnapshotVersion(src: String): String? {
+            return if (src.isBlank()) null
+            else if (src.endsWith("-")) {
+                src.substring(0, src.length - 1)
+            } else src
         }
 
         private fun bumpVersion(snapshot: Snapshot?): (Version, VersionComponent) -> Version {
@@ -193,7 +203,7 @@ data class Version(
         if (preRelease != null) {
             throw IllegalArgumentException("Current version is already pre-release")
         }
-        return Version(major, minor, patch, hotfix, PreReleaseVersion.create(preReleaseConfig), snapshot, preReleaseConfig)
+        return Version(major, minor, patch, hotfix, PreReleaseVersion(preReleaseConfig), snapshot, preReleaseConfig)
     }
 
     private fun promoteToRelease(): Version {

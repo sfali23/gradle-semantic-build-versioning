@@ -41,9 +41,9 @@ fun Config.toAutoBump(): AutoBump =
 
 fun Config.toPreReleaseConfig(): PreReleaseConfig =
     PreReleaseConfig(
-        prefix = this.readFailSafeString("prefix", "RC"),
-        separator = this.readFailSafeString("separator", "."),
-        startingVersion = this.readFailSafeInt("startingVersion", 1)
+        prefix = this.readFailSafeString("prefix", DefaultPreReleasePrefix),
+        separator = this.readFailSafeString("separator", DefaultPreReleaseSeparator),
+        startingVersion = this.readFailSafeInt("startingVersion", DefaultPreReleaseStartingVersion)
     )
 
 fun Config.toSnapshotConfig(): SnapshotConfig =

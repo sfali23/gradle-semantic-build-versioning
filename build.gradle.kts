@@ -139,7 +139,7 @@ dependencies {
     "integrationTestImplementation"("io.cucumber:cucumber-junit-platform-engine:7.14.0")
     "integrationTestImplementation"("io.cucumber:cucumber-expressions:16.1.2")
     "integrationTestRuntimeOnly"("org.junit.platform:junit-platform-launcher:1.10.0")
-    
+
     // Integration tests need access to test source
     "integrationTestImplementation"(sourceSets.test.get().output)
     "integrationTestImplementation"(sourceSets.test.get().compileClasspath)
@@ -203,30 +203,31 @@ tasks.named<ProcessResources>("processIntegrationTestResources") {
 }
 
 // Create integration test task for cucumber tests
-val integrationTest = tasks.register<Test>("integrationTest") {
-    description = "Runs integration tests (including Cucumber)"
-    group = "verification"
-    
-    testClassesDirs = sourceSets["integrationTest"].output.classesDirs
-    classpath = sourceSets["integrationTest"].runtimeClasspath
-    
-    if (System.getenv("CIRCLECI") != null) {
-        maxHeapSize = "1G"
-    }
-    
-    // Don't fail if no tests are discovered
-    failOnNoDiscoveredTests = false
+val integrationTest =
+    tasks.register<Test>("integrationTest") {
+        description = "Runs integration tests (including Cucumber)"
+        group = "verification"
 
-    useJUnitPlatform {
-        includeEngines("junit-jupiter", "cucumber")
-    }
+        testClassesDirs = sourceSets["integrationTest"].output.classesDirs
+        classpath = sourceSets["integrationTest"].runtimeClasspath
 
-    systemProperty("cucumber.junit-platform-engine.enabled", "true")
-    systemProperty("cucumber.features", "classpath:features")
-    systemProperty("cucumber.glue", "steps")
-    
-    shouldRunAfter(tasks.test)
-}
+        if (System.getenv("CIRCLECI") != null) {
+            maxHeapSize = "1G"
+        }
+
+        // Don't fail if no tests are discovered
+        failOnNoDiscoveredTests = false
+
+        useJUnitPlatform {
+            includeEngines("junit-jupiter", "cucumber")
+        }
+
+        systemProperty("cucumber.junit-platform-engine.enabled", "true")
+        systemProperty("cucumber.features", "classpath:features")
+        systemProperty("cucumber.glue", "steps")
+
+        shouldRunAfter(tasks.test)
+    }
 
 tasks.withType<Jar>().configureEach {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE

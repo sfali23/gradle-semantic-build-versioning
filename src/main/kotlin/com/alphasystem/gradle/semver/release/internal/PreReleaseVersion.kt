@@ -1,7 +1,6 @@
 package com.alphasystem.gradle.semver.release.internal
 
 import gradlesemverrelease.PreReleaseConfig
-import org.eclipse.jgit.util.StringUtils
 
 /**
  * Represents a pre-release version component in semantic versioning.
@@ -24,33 +23,24 @@ import org.eclipse.jgit.util.StringUtils
  * - Instantiation with validation
  */
 data class PreReleaseVersion(
-    val prefix: String?,
-    val version: Int,
-    val separator: String?
+    val prefix: String,
+    val separator: String,
+    val version: Int
 ) {
-    fun updatePrefix(prefix: String?): PreReleaseVersion {
-        return if (StringUtils.isEmptyOrNull(prefix)) {
-            this
-        } else {
-            val currentPrefix = if (StringUtils.isEmptyOrNull(this.prefix)) "" else this.prefix
-            PreReleaseVersion(String.format("%s%s", currentPrefix, prefix), version, separator)
-        }
+
+    init {
+        require(prefix.isNotBlank()) { "prefix cannot be null or empty string" }
+        require(separator.isNotBlank()) { "separator cannot be null or empty string" }
+        require(version >= 0) { "version number must be non-negative" }
     }
 
-    fun updateVersion(version: Int): PreReleaseVersion {
-        return PreReleaseVersion(prefix, version, separator)
-    }
+    constructor(preReleaseConfig: PreReleaseConfig) : this(
+        preReleaseConfig.prefix,
+        preReleaseConfig.separator,
+        preReleaseConfig.startingVersion
+    )
 
-    fun bumpVersion(): PreReleaseVersion {
-        return PreReleaseVersion(prefix, version + 1, separator)
-    }
+    fun bumpVersion(): PreReleaseVersion = copy(version = version + 1)
 
-    fun toStringValue(): String {
-        return String.format("-%s%s%s", prefix, separator ?: "", version)
-    }
-
-    companion object {
-        fun create(preReleaseConfig: PreReleaseConfig): PreReleaseVersion =
-            PreReleaseVersion(preReleaseConfig.prefix, preReleaseConfig.startingVersion, preReleaseConfig.separator)
-    }
+    fun toStringValue(): String = "-$prefix$separator$version"
 }

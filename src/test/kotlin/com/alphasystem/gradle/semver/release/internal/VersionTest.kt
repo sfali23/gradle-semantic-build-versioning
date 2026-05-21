@@ -22,7 +22,7 @@ class VersionTest {
         private val DEFAULT_CONFIG = PreReleaseConfig()
         private val DEFAULT_SNAPSHOT = Snapshot()
         private val DEFAULT_SNAPSHOT_SUFFIX = DEFAULT_SNAPSHOT.suffix
-        private val DEFAULT_PRE_RELEASE = PreReleaseVersion.create(DEFAULT_CONFIG)
+        private val DEFAULT_PRE_RELEASE = PreReleaseVersion(DEFAULT_CONFIG)
     }
 
     @Nested
@@ -49,7 +49,7 @@ class VersionTest {
         @DisplayName("Should parse version with pre-release")
         fun shouldParseVersionWithPreRelease() {
             val actual = Version.create("1.2.3-RC.1", DEFAULT_SNAPSHOT_SUFFIX, DEFAULT_CONFIG)
-            val expected = Version(1, 2, 3, null, PreReleaseVersion("RC", 1, DEFAULT_CONFIG.separator), null, DEFAULT_CONFIG)
+            val expected = Version(1, 2, 3, null, PreReleaseVersion("RC", DEFAULT_CONFIG.separator, 1), null, DEFAULT_CONFIG)
             assertEquals(actual, expected)
         }
 
@@ -58,7 +58,7 @@ class VersionTest {
         fun shouldParseVersionWithAllComponents() {
             val actual = Version.create("1.2.3-RC.1-SNAPSHOT+abcd", DEFAULT_SNAPSHOT_SUFFIX, DEFAULT_CONFIG)
             val expected = Version(
-                1, 2, 3, null, PreReleaseVersion("RC", 1, DEFAULT_CONFIG.separator),
+                1, 2, 3, null, PreReleaseVersion("RC", DEFAULT_CONFIG.separator, 1),
                 Snapshot(DEFAULT_SNAPSHOT_SUFFIX, "abcd"), DEFAULT_CONFIG
             )
             assertEquals(actual, expected)
@@ -577,8 +577,8 @@ class VersionTest {
             @Test
             @DisplayName("Should compare versions by pre-release version when other components are equal")
             fun shouldCompareVersionsByPreReleaseVersionWhenOtherComponentsAreEqual() {
-                val v1 = Version(1, 1, 1, null, PreReleaseVersion("alpha", 2, DEFAULT_CONFIG.separator), null, DEFAULT_CONFIG)
-                val v2 = Version(1, 1, 1, null, PreReleaseVersion("alpha", 1, DEFAULT_CONFIG.separator), null, DEFAULT_CONFIG)
+                val v1 = Version(1, 1, 1, null, PreReleaseVersion("alpha", DEFAULT_CONFIG.separator, 2), null, DEFAULT_CONFIG)
+                val v2 = Version(1, 1, 1, null, PreReleaseVersion("alpha", DEFAULT_CONFIG.separator, 1), null, DEFAULT_CONFIG)
                 val v3 = Version(1, 1, 1, null, null, null, DEFAULT_CONFIG)
 
                 assertEquals(-1, Version.VERSION_COMPARATOR.compare(v1, v2))
@@ -592,9 +592,9 @@ class VersionTest {
             @DisplayName("Should handle complex version comparisons")
             fun shouldHandleComplexVersionComparisons() {
                 val v1 = Version(2, 0, 0, null, null, null, DEFAULT_CONFIG) // 2.0.0
-                val v2 = Version(1, 9, 9, 9, PreReleaseVersion("alpha", 1, DEFAULT_CONFIG.separator), null, DEFAULT_CONFIG) // 1.9.9.9-alpha1
+                val v2 = Version(1, 9, 9, 9, PreReleaseVersion("alpha", DEFAULT_CONFIG.separator, 1), null, DEFAULT_CONFIG) // 1.9.9.9-alpha1
                 val v3 = Version(1, 9, 9, 9, null, null, DEFAULT_CONFIG) // 1.9.9.9
-                val v4 = Version(1, 9, 9, null, PreReleaseVersion("beta", 2, DEFAULT_CONFIG.separator), null, DEFAULT_CONFIG) // 1.9.9-beta2
+                val v4 = Version(1, 9, 9, null, PreReleaseVersion("beta", DEFAULT_CONFIG.separator, 2), null, DEFAULT_CONFIG) // 1.9.9-beta2
                 val v5 = Version(1, 9, 8, null, null, null, DEFAULT_CONFIG) // 1.9.8
 
                 // Expected order: v1 > v3 > v2 > v4 > v5
@@ -607,8 +607,8 @@ class VersionTest {
             @Test
             @DisplayName("Should handle versions with all components")
             fun shouldHandleVersionsWithAllComponents() {
-                val v1 = Version(1, 2, 3, 4, PreReleaseVersion("alpha", 1, DEFAULT_CONFIG.separator), Snapshot("SNAPSHOT", "meta"), DEFAULT_CONFIG)
-                val v2 = Version(1, 2, 3, 3, PreReleaseVersion("alpha", 1, DEFAULT_CONFIG.separator), Snapshot("SNAPSHOT", "meta"), DEFAULT_CONFIG)
+                val v1 = Version(1, 2, 3, 4, PreReleaseVersion("alpha", DEFAULT_CONFIG.separator, 1), Snapshot("SNAPSHOT", "meta"), DEFAULT_CONFIG)
+                val v2 = Version(1, 2, 3, 3, PreReleaseVersion("alpha", DEFAULT_CONFIG.separator, 1), Snapshot("SNAPSHOT", "meta"), DEFAULT_CONFIG)
 
                 assertEquals(-1, Version.VERSION_COMPARATOR.compare(v1, v2))
                 assertEquals(1, Version.VERSION_COMPARATOR.compare(v2, v1))
@@ -628,7 +628,7 @@ class VersionTest {
             @DisplayName("Should treat null pre-release as Int.MAX_VALUE")
             fun shouldTreatNullPreReleaseAsIntMaxValue() {
                 val v1 = Version(1, 1, 1, null, null, null, DEFAULT_CONFIG)
-                val v2 = Version(1, 1, 1, null, PreReleaseVersion("alpha", Int.MAX_VALUE, DEFAULT_CONFIG.separator), null, DEFAULT_CONFIG)
+                val v2 = Version(1, 1, 1, null, PreReleaseVersion("alpha", DEFAULT_CONFIG.separator, Int.MAX_VALUE), null, DEFAULT_CONFIG)
 
                 assertEquals(0, Version.VERSION_COMPARATOR.compare(v1, v2))
                 assertEquals(0, Version.VERSION_COMPARATOR.compare(v2, v1))
@@ -643,7 +643,7 @@ class VersionTest {
                     Version(1, 1, 0, null, null, null, DEFAULT_CONFIG),
                     Version(1, 0, 1, null, null, null, DEFAULT_CONFIG),
                     Version(1, 0, 0, 1, null, null, DEFAULT_CONFIG),
-                    Version(1, 0, 0, null, PreReleaseVersion("alpha", 1, DEFAULT_CONFIG.separator), null, DEFAULT_CONFIG)
+                    Version(1, 0, 0, null, PreReleaseVersion("alpha", DEFAULT_CONFIG.separator, 1), null, DEFAULT_CONFIG)
                 )
 
                 val sortedVersions = versions.sortedWith(Version.VERSION_COMPARATOR)
@@ -654,7 +654,7 @@ class VersionTest {
                     Version(1, 0, 1, null, null, null, DEFAULT_CONFIG),
                     Version(1, 0, 0, 1, null, null, DEFAULT_CONFIG),
                     Version(1, 0, 0, null, null, null, DEFAULT_CONFIG),
-                    Version(1, 0, 0, null, PreReleaseVersion("alpha", 1, DEFAULT_CONFIG.separator), null, DEFAULT_CONFIG)
+                    Version(1, 0, 0, null, PreReleaseVersion("alpha", DEFAULT_CONFIG.separator, 1), null, DEFAULT_CONFIG)
                 )
 
                 assertEquals(expectedOrder, sortedVersions)
@@ -663,8 +663,8 @@ class VersionTest {
             @Test
             @DisplayName("Should handle identical versions")
             fun shouldHandleIdenticalVersions() {
-                val v1 = Version(1, 2, 3, 4, PreReleaseVersion("alpha", 1, DEFAULT_CONFIG.separator), Snapshot("SNAPSHOT", "meta"), DEFAULT_CONFIG)
-                val v2 = Version(1, 2, 3, 4, PreReleaseVersion("alpha", 1, DEFAULT_CONFIG.separator), Snapshot("SNAPSHOT", "meta"), DEFAULT_CONFIG)
+                val v1 = Version(1, 2, 3, 4, PreReleaseVersion("alpha", DEFAULT_CONFIG.separator, 1), Snapshot("SNAPSHOT", "meta"), DEFAULT_CONFIG)
+                val v2 = Version(1, 2, 3, 4, PreReleaseVersion("alpha", DEFAULT_CONFIG.separator, 1), Snapshot("SNAPSHOT", "meta"), DEFAULT_CONFIG)
 
                 assertEquals(0, Version.VERSION_COMPARATOR.compare(v1, v2))
                 assertEquals(0, Version.VERSION_COMPARATOR.compare(v2, v1))
@@ -675,11 +675,11 @@ class VersionTest {
             fun shouldHandleEdgeCaseWithMaximumValues() {
                 val v1 = Version(
                     Int.MAX_VALUE, Int.MAX_VALUE, Int.MAX_VALUE, Int.MAX_VALUE,
-                    PreReleaseVersion("alpha", Int.MAX_VALUE, DEFAULT_CONFIG.separator), null, DEFAULT_CONFIG
+                    PreReleaseVersion("alpha", DEFAULT_CONFIG.separator, Int.MAX_VALUE), null, DEFAULT_CONFIG
                 )
                 val v2 = Version(
                     Int.MAX_VALUE, Int.MAX_VALUE, Int.MAX_VALUE, Int.MAX_VALUE - 1,
-                    PreReleaseVersion("alpha", Int.MAX_VALUE, DEFAULT_CONFIG.separator), null, DEFAULT_CONFIG
+                    PreReleaseVersion("alpha", DEFAULT_CONFIG.separator, Int.MAX_VALUE), null, DEFAULT_CONFIG
                 )
 
                 assertEquals(-1, Version.VERSION_COMPARATOR.compare(v1, v2))

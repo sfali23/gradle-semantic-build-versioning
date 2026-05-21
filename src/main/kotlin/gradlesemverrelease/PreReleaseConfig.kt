@@ -1,6 +1,8 @@
 package gradlesemverrelease
 
-import org.eclipse.jgit.util.StringUtils
+import com.alphasystem.gradle.semver.release.DefaultPreReleasePrefix
+import com.alphasystem.gradle.semver.release.DefaultPreReleaseSeparator
+import com.alphasystem.gradle.semver.release.DefaultPreReleaseStartingVersion
 import java.util.regex.Pattern
 
 /**
@@ -36,33 +38,19 @@ import java.util.regex.Pattern
  */
 @JvmRecord
 data class PreReleaseConfig(
-    val prefix: String,
-    val separator: String,
-    val startingVersion: Int
+    val prefix: String = DefaultPreReleasePrefix,
+    val separator: String = DefaultPreReleaseSeparator,
+    val startingVersion: Int = DefaultPreReleaseStartingVersion
 ) {
     init {
-        validate(prefix, separator, startingVersion)
+        require(prefix.isNotBlank()) { "prefix cannot be null or empty string" }
+        require(startingVersion > 0) { "startingVersion must be positive integer greater than 0" }
+        require(separator.isNotBlank()) { "separator cannot be null or empty string" }
     }
-
-    constructor() : this("RC", ".", 1)
 
     fun preReleasePartPattern(): Pattern {
         val escapedSeparator = separator.replace(".", "\\.")
         val pattern = "^(?i)($prefix)($escapedSeparator)([1-9]\\d*)$"
         return Pattern.compile(pattern)
-    }
-
-    companion object {
-        private fun validate(prefix: String, separator: String, startingVersion: Int) {
-            if (StringUtils.isEmptyOrNull(prefix)) {
-                throw IllegalArgumentException("prefix cannot be null or empty string")
-            }
-            if (StringUtils.isEmptyOrNull(separator)) {
-                throw IllegalArgumentException("separator cannot be null or empty string")
-            }
-            if (startingVersion <= 0) {
-                throw IllegalArgumentException("startingVersion must be positive integer greater than 0")
-            }
-        }
     }
 }

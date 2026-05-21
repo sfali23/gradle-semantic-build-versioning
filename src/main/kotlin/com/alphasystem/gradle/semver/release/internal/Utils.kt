@@ -2,29 +2,31 @@ package com.alphasystem.gradle.semver.release.internal
 
 import gradlesemverrelease.PreReleaseConfig
 
-fun toPreReleaseVersion(version: String, src: PreReleaseConfig): PreReleaseVersion? {
-    val matcher = src.preReleasePartPattern().matcher(version)
+fun PreReleaseConfig.toPreReleaseVersion(version: String): PreReleaseVersion {
+    val result = PreReleaseVersion(this)
 
-    var result: PreReleaseVersion? = null
-    if (matcher.matches()) {
-        result = PreReleaseVersion(null, -1, src.separator)
-        // skip group 0; since it contains entire matched string
-        // group 1 is the prefix, group 2 is the separator, group 3 is the version
-        for (i in 1..matcher.groupCount()) {
-            val value = matcher.group(i)
-
-            if (result?.version!! < 0 && isNumeric(value)) {
-                result = result.updateVersion(value.toInt())
-            } else if (value == src.separator) {
-                // Skip the separator
-                continue
-            } else {
-                result = result.updatePrefix(value)
-            }
-        }
+    val matcher = this.preReleasePartPattern().matcher(version)
+    val groupCount = matcher.groupCount()
+    if (!matcher.matches() && groupCount < 4) {
+        throw IllegalArgumentException("Invalid pre-release version: $version")
     }
 
-    return result
+    val prefix = matcher.group(1)
+    if (this.prefix != prefix) {
+        throw IllegalArgumentException("Invalid pre-release version: $version, expected prefix: ${this.prefix}, actual: $prefix")
+    }
+
+    val separator = matcher.group(2)
+    if (this.separator != separator) {
+        throw IllegalArgumentException("Invalid pre-release version: $version, expected separator: ${this.separator}, actual: $separator")
+    }
+
+    val versionValue = matcher.group(3)
+    if (!isNumeric(versionValue)) {
+        throw IllegalArgumentException("Invalid pre-release version: $version, version has to be a number: $versionValue")
+    }
+
+    return result.copy(version = versionValue.toInt())
 }
 
 private fun isNumeric(str: String?): Boolean {
