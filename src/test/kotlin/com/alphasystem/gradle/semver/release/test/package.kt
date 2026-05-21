@@ -2,21 +2,18 @@ package com.alphasystem.gradle.semver.release.test
 
 import com.alphasystem.gradle.semver.release.*
 import com.alphasystem.gradle.semver.release.common.JGitAdapter
-import com.alphasystem.gradle.semver.release.common.TestRepository
-import com.alphasystem.gradle.semver.release.internal.SemanticBuildVersion
 import com.alphasystem.gradle.semver.release.internal.SemanticBuildVersionConfiguration
 import com.alphasystem.gradle.semver.release.internal.Version
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
-import gradlesemverrelease.AutoBump
-import gradlesemverrelease.AutoBump.Companion.DefaultMajorPattern
-import gradlesemverrelease.AutoBump.Companion.DefaultMinorPattern
-import gradlesemverrelease.AutoBump.Companion.DefaultNewPreReleasePattern
-import gradlesemverrelease.AutoBump.Companion.DefaultPatchPattern
-import gradlesemverrelease.AutoBump.Companion.DefaultPromoteToReleasePattern
-import gradlesemverrelease.PreReleaseConfig
-import gradlesemverrelease.SnapshotConfig
-import java.io.File
+import semverrelease.AutoBump
+import semverrelease.AutoBump.Companion.DefaultMajorPattern
+import semverrelease.AutoBump.Companion.DefaultMinorPattern
+import semverrelease.AutoBump.Companion.DefaultNewPreReleasePattern
+import semverrelease.AutoBump.Companion.DefaultPatchPattern
+import semverrelease.AutoBump.Companion.DefaultPromoteToReleasePattern
+import semverrelease.PreReleaseConfig
+import semverrelease.SnapshotConfig
 
 fun Config.readFailSafeString(path: String, defaultValue: String): String =
     if (this.hasPath(path)) this.getString(path) else defaultValue

@@ -1,4 +1,4 @@
-package gradlesemverrelease
+package semverrelease
 
 import com.alphasystem.gradle.semver.release.DefaultSnapshotPrefix
 

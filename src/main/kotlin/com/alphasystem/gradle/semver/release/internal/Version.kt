@@ -1,7 +1,7 @@
 package com.alphasystem.gradle.semver.release.internal
 
 import com.alphasystem.gradle.semver.release.VersionComponent
-import gradlesemverrelease.PreReleaseConfig
+import semverrelease.PreReleaseConfig
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 

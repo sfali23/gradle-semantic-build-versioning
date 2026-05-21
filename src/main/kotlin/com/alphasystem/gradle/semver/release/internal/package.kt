@@ -1,6 +1,6 @@
 package com.alphasystem.gradle.semver.release.internal
 
-import gradlesemverrelease.PreReleaseConfig
+import semverrelease.PreReleaseConfig
 
 fun PreReleaseConfig.toPreReleaseVersion(version: String): PreReleaseVersion {
     val result = PreReleaseVersion(this)

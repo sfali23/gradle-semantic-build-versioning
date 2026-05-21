@@ -1,6 +1,6 @@
 package com.alphasystem.gradle.semver.release.internal
 
-import gradlesemverrelease.PreReleaseConfig
+import semverrelease.PreReleaseConfig
 
 /**
  * Represents a pre-release version component in semantic versioning.

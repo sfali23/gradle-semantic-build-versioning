@@ -2,7 +2,7 @@ package com.alphasystem.gradle.semver.release.internal
 
 import com.alphasystem.gradle.semver.release.VersionComponent
 import com.alphasystem.gradle.semver.release.VersionComponent.*
-import gradlesemverrelease.AutoBump
+import semverrelease.AutoBump
 
 class SetupVersionComponentsForBump {
 

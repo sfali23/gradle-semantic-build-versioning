@@ -1,9 +1,9 @@
 package com.alphasystem.gradle.semver.release.internal
 
 import com.alphasystem.gradle.semver.release.*
-import gradlesemverrelease.AutoBump
-import gradlesemverrelease.PreReleaseConfig
-import gradlesemverrelease.SnapshotConfig
+import semverrelease.AutoBump
+import semverrelease.PreReleaseConfig
+import semverrelease.SnapshotConfig
 
 @JvmRecord
 data class SemanticBuildVersionConfiguration(
