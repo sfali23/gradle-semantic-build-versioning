@@ -1,8 +1,6 @@
 package com.alphasystem.gradle.semver.release.common
 
-import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.Constants
-import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.revwalk.RevTag
 import org.eclipse.jgit.revwalk.RevWalk
 import org.eclipse.jgit.transport.URIish
@@ -10,15 +8,16 @@ import org.slf4j.LoggerFactory
 import java.io.File
 import java.io.IOException
 import java.io.PrintWriter
-import java.nio.file.Paths
 import java.util.*
 
-class TestRepository(repository: Repository) {
+class TestRepository(val workingDirectory: File) {
 
-    private val repository: Repository = repository
-    private val git: Git = Git(repository)
-    private val workingDirectory: File = Paths.get(repository.directory.parentFile.absolutePath).toFile()
+    private val adapter = JGitAdapter(workingDirectory, true)
+    private val repository = adapter.getRepository()
+    private val git = adapter.getGit()
     private val random = Random()
+
+    fun getAdapter(): JGitAdapter = adapter
 
     fun close() {
         repository.close()
@@ -37,17 +36,7 @@ class TestRepository(repository: Repository) {
     }
 
     fun tag(tag: String, annotated: Boolean): TestRepository {
-        var tagCommand = git.tag().setAnnotated(annotated).setName(tag)
-
-        if (annotated) {
-            tagCommand = tagCommand.setMessage("Releasing $tag")
-        }
-
-        try {
-            tagCommand.call()
-        } catch (e: Exception) {
-            throw RuntimeException("Failed to create tag: $tag", e)
-        }
+        adapter.createTag(tag, "Releasing $tag", annotated)
         return this
     }
 
@@ -214,17 +203,6 @@ class TestRepository(repository: Repository) {
 
     companion object {
         private val logger = LoggerFactory.getLogger(TestRepository::class.java)
-
-        fun create(repository: Repository): TestRepository {
-            return TestRepository(repository)
-        }
-
-        fun create(workingDir: File): TestRepository {
-            if (!workingDir.exists()) {
-                workingDir.mkdirs()
-            }
-            return TestRepository(JGitAdapter.initRepository(workingDir, true))
-        }
     }
 
     private fun generateRandomString(length: Int): String {

@@ -1,22 +1,20 @@
 package steps
 
 import com.alphasystem.gradle.semver.release.test.*
-import com.alphasystem.gradle.semver.release.common.JGitAdapter
 import com.alphasystem.gradle.semver.release.common.TestRepository
 import com.alphasystem.gradle.semver.release.internal.SemanticBuildVersion
 import com.alphasystem.gradle.semver.release.internal.SemanticBuildVersionConfiguration
 import io.cucumber.java.ParameterType
 import io.cucumber.java.en.*
 import org.junit.jupiter.api.Assertions.assertEquals
-import java.io.File
 import java.nio.file.Files
 import java.util.UUID
 
 class StepDefinitions {
 
-    private val workingDirectory: File = Files.createTempDirectory(UUID.randomUUID().toString()).toFile()
-    private val repository: TestRepository = TestRepository.create(workingDirectory)
-    private val adapter: JGitAdapter = JGitAdapter(workingDirectory)
+    private val workingDirectory = Files.createTempDirectory(UUID.randomUUID().toString()).toFile()
+    private val repository = TestRepository(workingDirectory)
+    private val adapter = repository.getAdapter()
     private var config: SemanticBuildVersionConfiguration = SemanticBuildVersionConfiguration()
     private var mainBranchName = ""
 

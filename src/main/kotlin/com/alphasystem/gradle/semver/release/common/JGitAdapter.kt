@@ -9,6 +9,7 @@ import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.revwalk.RevCommit
 import org.eclipse.jgit.revwalk.RevWalk
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder
+import org.eclipse.jgit.transport.PushResult
 import java.io.File
 import java.io.IOException
 import java.util.*
@@ -20,18 +21,13 @@ import java.util.stream.StreamSupport
  * supports various Git-related operations such as retrieving commits, branches, tags, and analyzing
  * repository states.
  */
-class JGitAdapter(private val workingDir: File) {
-    private val repository: Repository = JGitAdapter.initRepository(workingDir)
-    private var git: Git? = null
+class JGitAdapter(workingDir: File, initialize: Boolean = false) {
+    private val repository = initRepository(workingDir, initialize)
+    private val git = Git(repository)
 
     fun getRepository(): Repository = repository
 
-    fun getGit(): Git {
-        if (git == null) {
-            git = Git(repository)
-        }
-        return git!!
-    }
+    fun getGit(): Git = git
 
     @Throws(IOException::class)
     fun getHeadCommit(): ObjectId = repository.resolve(Constants.HEAD)!!
@@ -45,16 +41,16 @@ class JGitAdapter(private val workingDir: File) {
     @Throws(IOException::class)
     fun getCurrentBranch(): String = repository.branch
 
-    fun getRevWalk(): RevWalk = RevWalk(repository)
+    private fun getRevWalk(): RevWalk = RevWalk(repository)
 
     @Throws(GitAPIException::class)
     fun getTagsForCurrentBranch(): List<String> {
-        val tags = getGit().tagList().call().stream()
+        val tags = git.tagList().call().stream()
             .collect(Collectors.groupingBy { tagRef: Ref -> getRevWalk().parseCommit(getNonNullObjectId(tagRef)).id })
 
         val ref = repository.resolve(repository.branch)
         if (ref != null) {
-            return StreamSupport.stream(getGit().log().add(ref).call().spliterator(), false)
+            return StreamSupport.stream(git.log().add(ref).call().spliterator(), false)
                 .flatMap { rev: RevCommit -> tags.getOrDefault(rev.id, emptyList()).stream() }
                 .map { tagRef: Ref -> tagRef.name.replace(Constants.R_TAGS, "") }
                 .collect(Collectors.toList())
@@ -62,10 +58,19 @@ class JGitAdapter(private val workingDir: File) {
         return emptyList()
     }
 
+    fun createTag(tag: String, message: String, annotated: Boolean): Ref? =
+        git.tag()
+            .setName(tag)
+            .setAnnotated(annotated)
+            .let { if (annotated) it.setMessage(message) else it }
+            .call()
+
+    fun pushTag(tagRef: Ref): List<PushResult> = git.push().add(tagRef).call().toList().filterNotNull()
+
     fun getCommits(): List<String> {
         return try {
             val branchRef = repository.resolve(repository.branch)
-            StreamSupport.stream(getGit().log().add(branchRef).call().spliterator(), false)
+            StreamSupport.stream(git.log().add(branchRef).call().spliterator(), false)
                 .map { obj: RevCommit -> obj.fullMessage }
                 .collect(Collectors.toList())
         } catch (e: Exception) {
@@ -87,7 +92,7 @@ class JGitAdapter(private val workingDir: File) {
             val endCommit = walk.parseCommit(endId)
 
             StreamSupport.stream(
-                getGit().log().addRange(startCommit, endCommit).call().spliterator(), false
+                git.log().addRange(startCommit, endCommit).call().spliterator(), false
             )
                 .map { commit: RevCommit ->
                     val shortHash = try {
@@ -118,7 +123,7 @@ class JGitAdapter(private val workingDir: File) {
             val endCommit = walk.parseCommit(endId)
 
             StreamSupport.stream(
-                getGit().log().addRange(startCommit, endCommit).call().spliterator(), false
+                git.log().addRange(startCommit, endCommit).call().spliterator(), false
             )
                 .map { obj: RevCommit -> obj.fullMessage }
                 .collect(Collectors.toList())
@@ -129,18 +134,14 @@ class JGitAdapter(private val workingDir: File) {
 
     fun hasUncommittedChanges(): Boolean {
         return try {
-            getGit().status().call().hasUncommittedChanges()
-        } catch (e: Exception) {
+            git.status().call().hasUncommittedChanges()
+        } catch (_: Exception) {
             false
         }
     }
 
     companion object {
-        fun apply(workingDir: File): JGitAdapter = JGitAdapter(workingDir)
-
-        fun initRepository(workingDir: File): Repository = initRepository(workingDir, false)
-
-        fun initRepository(workingDir: File, initialize: Boolean): Repository {
+        private fun initRepository(workingDir: File, initialize: Boolean): Repository {
             return try {
                 if (initialize) {
                     Git.init().setDirectory(workingDir).call()
