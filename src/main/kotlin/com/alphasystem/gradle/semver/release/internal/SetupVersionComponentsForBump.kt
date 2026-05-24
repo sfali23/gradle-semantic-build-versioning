@@ -1,12 +1,10 @@
 package com.alphasystem.gradle.semver.release.internal
 
-import com.alphasystem.gradle.semver.release.VersionComponent
-import com.alphasystem.gradle.semver.release.VersionComponent.*
 import semverrelease.AutoBump
 
 class SetupVersionComponentsForBump {
 
-    private var result: Int = NONE.index
+    private var result: Int = VersionComponent.NONE.index
 
     fun parseMessage(commitMessage: String, autoBump: AutoBump): SetupVersionComponentsForBump {
         if (autoBump.major(commitMessage)) addMajor()
@@ -17,40 +15,40 @@ class SetupVersionComponentsForBump {
         return this
     }
 
-    private fun addMajor(): SetupVersionComponentsForBump = addComponent(MAJOR)
-    fun removeMajor(): SetupVersionComponentsForBump = removeComponent(MAJOR)
+    private fun addMajor(): SetupVersionComponentsForBump = addComponent(VersionComponent.MAJOR)
+    fun removeMajor(): SetupVersionComponentsForBump = removeComponent(VersionComponent.MAJOR)
 
-    private fun addMinor(): SetupVersionComponentsForBump = addComponent(MINOR)
-    fun removeMinor(): SetupVersionComponentsForBump = removeComponent(MINOR)
+    private fun addMinor(): SetupVersionComponentsForBump = addComponent(VersionComponent.MINOR)
+    fun removeMinor(): SetupVersionComponentsForBump = removeComponent(VersionComponent.MINOR)
 
-    fun addPatch(): SetupVersionComponentsForBump = addComponent(PATCH)
-    fun removePatch(): SetupVersionComponentsForBump = removeComponent(PATCH)
+    fun addPatch(): SetupVersionComponentsForBump = addComponent(VersionComponent.PATCH)
+    fun removePatch(): SetupVersionComponentsForBump = removeComponent(VersionComponent.PATCH)
 
-    fun addHotFix(): SetupVersionComponentsForBump = addComponent(HOT_FIX)
-    fun removeHotFix(): SetupVersionComponentsForBump = removeComponent(HOT_FIX)
+    fun addHotFix(): SetupVersionComponentsForBump = addComponent(VersionComponent.HOT_FIX)
+    fun removeHotFix(): SetupVersionComponentsForBump = removeComponent(VersionComponent.HOT_FIX)
 
-    private fun addNewPreRelease(): SetupVersionComponentsForBump = addComponent(NEW_PRE_RELEASE)
-    fun removeNewPreRelease(): SetupVersionComponentsForBump = removeComponent(NEW_PRE_RELEASE)
+    private fun addNewPreRelease(): SetupVersionComponentsForBump = addComponent(VersionComponent.NEW_PRE_RELEASE)
+    fun removeNewPreRelease(): SetupVersionComponentsForBump = removeComponent(VersionComponent.NEW_PRE_RELEASE)
 
-    fun addPreRelease(): SetupVersionComponentsForBump = addComponent(PRE_RELEASE)
-    fun removePreRelease(): SetupVersionComponentsForBump = removeComponent(PRE_RELEASE)
+    fun addPreRelease(): SetupVersionComponentsForBump = addComponent(VersionComponent.PRE_RELEASE)
+    fun removePreRelease(): SetupVersionComponentsForBump = removeComponent(VersionComponent.PRE_RELEASE)
 
-    fun addPromoteToRelease(): SetupVersionComponentsForBump = addComponent(PROMOTE_TO_RELEASE)
-    fun removePromoteToRelease(): SetupVersionComponentsForBump = removeComponent(PROMOTE_TO_RELEASE)
+    fun addPromoteToRelease(): SetupVersionComponentsForBump = addComponent(VersionComponent.PROMOTE_TO_RELEASE)
+    fun removePromoteToRelease(): SetupVersionComponentsForBump = removeComponent(VersionComponent.PROMOTE_TO_RELEASE)
 
-    fun addSnapshot(): SetupVersionComponentsForBump = addComponent(SNAPSHOT)
+    fun addSnapshot(): SetupVersionComponentsForBump = addComponent(VersionComponent.SNAPSHOT)
 
-    fun hasMajor(): Boolean = hasGivenComponent(MAJOR)
-    fun hasMinor(): Boolean = hasGivenComponent(MINOR)
-    fun hasPatch(): Boolean = hasGivenComponent(PATCH)
-    fun hasPromoteToRelease(): Boolean = hasGivenComponent(PROMOTE_TO_RELEASE)
-    fun hasPreRelease(): Boolean = hasGivenComponent(PRE_RELEASE)
+    fun hasMajor(): Boolean = hasGivenComponent(VersionComponent.MAJOR)
+    fun hasMinor(): Boolean = hasGivenComponent(VersionComponent.MINOR)
+    fun hasPatch(): Boolean = hasGivenComponent(VersionComponent.PATCH)
+    fun hasPromoteToRelease(): Boolean = hasGivenComponent(VersionComponent.PROMOTE_TO_RELEASE)
+    fun hasPreRelease(): Boolean = hasGivenComponent(VersionComponent.PRE_RELEASE)
     fun hasMandatoryComponents(): Boolean = hasMajor() || hasMinor() || hasPatch()
     fun hasEssentialComponents(): Boolean = hasMajor() || hasMinor() || hasPatch() || hasPromoteToRelease() ||
-            hasPreRelease() || hasGivenComponent(HOT_FIX)
+            hasPreRelease() || hasGivenComponent(VersionComponent.HOT_FIX)
 
     fun reset(): SetupVersionComponentsForBump {
-        result = NONE.index
+        result = VersionComponent.NONE.index
         return this
     }
 
@@ -59,30 +57,26 @@ class SetupVersionComponentsForBump {
 
     fun getVersionComponents(): List<VersionComponent> =
         setOf(
-            VersionComponent.fromIndex(result and MAJOR.index),
-            VersionComponent.fromIndex(result and MINOR.index),
-            VersionComponent.fromIndex(result and PATCH.index),
-            VersionComponent.fromIndex(result and HOT_FIX.index),
-            VersionComponent.fromIndex(result and NEW_PRE_RELEASE.index),
-            VersionComponent.fromIndex(result and PRE_RELEASE.index),
-            VersionComponent.fromIndex(result and PROMOTE_TO_RELEASE.index),
-            VersionComponent.fromIndex(result and SNAPSHOT.index)
+            VersionComponent.fromIndex(result and VersionComponent.MAJOR.index),
+            VersionComponent.fromIndex(result and VersionComponent.MINOR.index),
+            VersionComponent.fromIndex(result and VersionComponent.PATCH.index),
+            VersionComponent.fromIndex(result and VersionComponent.HOT_FIX.index),
+            VersionComponent.fromIndex(result and VersionComponent.NEW_PRE_RELEASE.index),
+            VersionComponent.fromIndex(result and VersionComponent.PRE_RELEASE.index),
+            VersionComponent.fromIndex(result and VersionComponent.PROMOTE_TO_RELEASE.index),
+            VersionComponent.fromIndex(result and VersionComponent.SNAPSHOT.index)
         ).toList().filterNotNull()
 
     private fun addComponent(versionComponent: VersionComponent): SetupVersionComponentsForBump {
-        result = result or (versionComponent.index or NONE.index)
+        result = result or (versionComponent.index or VersionComponent.NONE.index)
         return this
     }
 
     private fun removeComponent(versionComponent: VersionComponent): SetupVersionComponentsForBump {
-        result = result and (versionComponent.index or NONE.index).inv()
+        result = result and (versionComponent.index or VersionComponent.NONE.index).inv()
         return this
     }
 
     private fun hasGivenComponent(versionComponent: VersionComponent) =
         (result and versionComponent.index) == versionComponent.index
-
-    companion object {
-        fun apply(): SetupVersionComponentsForBump = SetupVersionComponentsForBump()
-    }
 }

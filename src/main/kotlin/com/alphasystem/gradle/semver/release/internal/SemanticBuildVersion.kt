@@ -1,6 +1,5 @@
 package com.alphasystem.gradle.semver.release.internal
 
-import com.alphasystem.gradle.semver.release.VersionComponent
 import com.alphasystem.gradle.semver.release.common.JGitAdapter
 import org.slf4j.LoggerFactory
 import semverrelease.nonEmpty

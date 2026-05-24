@@ -1,4 +1,4 @@
-package com.alphasystem.gradle.semver.release
+package com.alphasystem.gradle.semver.release.internal
 
 /**
  * Represents the various components of a software version in a versioning system.
