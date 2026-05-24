@@ -8,5 +8,5 @@ package com.alphasystem.gradle.semver.release
  * or updates in the application.
  */
 enum class ComponentToBump {
-    MAJOR, MINOR, PATCH
+    NONE, MAJOR, MINOR, PATCH
 }

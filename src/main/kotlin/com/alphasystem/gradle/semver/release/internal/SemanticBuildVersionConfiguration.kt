@@ -1,5 +1,6 @@
 package com.alphasystem.gradle.semver.release.internal
 
+import com.alphasystem.gradle.semver.release.ComponentToBump
 import com.alphasystem.gradle.semver.release.VersionComponent
 import semverrelease.AutoBump
 import semverrelease.*
@@ -13,8 +14,8 @@ data class SemanticBuildVersionConfiguration(
     val snapshot: Boolean = DefaultBooleanValue,
     val newPreRelease: Boolean = DefaultBooleanValue,
     val autoBump: AutoBump = AutoBump(),
-    val defaultBumpLevel: VersionComponent = DefaultBumpLevel,
-    val componentToBump: VersionComponent = DefaultComponentToBump,
+    val defaultBumpLevel: ComponentToBump = DefaultBumpLevel,
+    val componentToBump: ComponentToBump = DefaultComponentToBump,
     val snapshotConfig: SnapshotConfig = SnapshotConfig(),
     val preReleaseConfig: PreReleaseConfig = PreReleaseConfig(),
     val hotfixBranchPattern: Regex = DefaultHotfixBranchPattern,
@@ -26,4 +27,8 @@ data class SemanticBuildVersionConfiguration(
     fun isAutoBumpEnabled(): Boolean = autoBump.isEnabled()
 
     fun isReleaseBranch(branchName: String): Boolean = releaseBranches().contains(branchName)
+
+    fun toDefaultVersionComponent(): VersionComponent = defaultBumpLevel.toVersionComponent()
+
+    fun toVersionComponentToBump(): VersionComponent = componentToBump.toVersionComponent()
 }

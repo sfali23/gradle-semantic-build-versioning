@@ -70,8 +70,8 @@ class SemanticBuildVersion(workingDir: File, val baseConfig: SemanticBuildVersio
             val versionComponents =
                 SetupVersionComponentsForBump()
                     .addComponentIfRequired(
-                        baseConfig.componentToBump,
-                        addDefaultComponent(baseConfig.componentToBump)
+                        baseConfig.toVersionComponentToBump(),
+                        addDefaultComponent(baseConfig.toVersionComponentToBump())
                     )
                     .addComponentIfRequired(VersionComponent.PROMOTE_TO_RELEASE, { baseConfig.promoteToRelease })
                     .addComponentIfRequired(VersionComponent.NEW_PRE_RELEASE, { baseConfig.newPreRelease })
@@ -165,7 +165,7 @@ class SemanticBuildVersion(workingDir: File, val baseConfig: SemanticBuildVersio
                 !versionComponents.hasMandatoryComponents() && !versionComponents.hasPreRelease() && !versionComponents.hasPromoteToRelease()
             )
                 versionComponents
-                    .addComponentIfRequired(baseConfig.defaultBumpLevel, addDefaultComponent(baseConfig.defaultBumpLevel))
+                    .addComponentIfRequired(baseConfig.toDefaultVersionComponent(), addDefaultComponent(baseConfig.toDefaultVersionComponent()))
 
             versionComponents.addSnapshot()
         }
@@ -173,7 +173,7 @@ class SemanticBuildVersion(workingDir: File, val baseConfig: SemanticBuildVersio
         if (!versionComponents.hasEssentialComponents()) {
             if (forcePush) {
                 // We don't have any defined bump level use defaultBumpLevel
-                versionComponents.addComponentIfRequired(baseConfig.defaultBumpLevel, { forcePush })
+                versionComponents.addComponentIfRequired(baseConfig.toDefaultVersionComponent(), { forcePush })
             } else if (baseConfig.forceBump) {
                 throw IllegalArgumentException(
                     "Couldn't determine next version, tag (${currentVersion.toStringValue()}) is already exists."

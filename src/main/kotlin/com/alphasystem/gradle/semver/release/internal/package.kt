@@ -1,5 +1,7 @@
 package com.alphasystem.gradle.semver.release.internal
 
+import com.alphasystem.gradle.semver.release.ComponentToBump
+import com.alphasystem.gradle.semver.release.VersionComponent
 import semverrelease.PreReleaseConfig
 
 fun PreReleaseConfig.toPreReleaseVersion(version: String): PreReleaseVersion {
@@ -32,3 +34,5 @@ fun PreReleaseConfig.toPreReleaseVersion(version: String): PreReleaseVersion {
 private fun isNumeric(str: String?): Boolean {
     return str != null && str.matches("-?\\d+".toRegex())
 }
+
+fun ComponentToBump.toVersionComponent() = VersionComponent.valueOf(this.name)

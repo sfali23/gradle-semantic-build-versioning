@@ -1,6 +1,6 @@
 package com.alphasystem.gradle.semver.release.test
 
-import com.alphasystem.gradle.semver.release.VersionComponent
+import com.alphasystem.gradle.semver.release.ComponentToBump
 import com.alphasystem.gradle.semver.release.common.JGitAdapter
 import com.alphasystem.gradle.semver.release.internal.SemanticBuildVersionConfiguration
 import com.alphasystem.gradle.semver.release.internal.Version
@@ -59,9 +59,9 @@ fun Config.toSemanticBuildVersionConfiguration() =
         newPreRelease = this.readFailSafeBoolean("newPreRelease", DefaultBooleanValue),
         autoBump = if (this.hasPath("autoBump")) this.getConfig("autoBump").toAutoBump() else AutoBump(),
         defaultBumpLevel =
-            VersionComponent.valueOf(this.readFailSafeString("defaultBumpLevel", DefaultBumpLevel.name)),
+            ComponentToBump.valueOf(this.readFailSafeString("defaultBumpLevel", DefaultBumpLevel.name)),
         componentToBump =
-            VersionComponent.valueOf(this.readFailSafeString("componentToBump", DefaultComponentToBump.name)),
+            ComponentToBump.valueOf(this.readFailSafeString("componentToBump", DefaultComponentToBump.name)),
         snapshotConfig =
             if (this.hasPath("snapshotConfig")) this.getConfig("snapshotConfig").toSnapshotConfig() else SnapshotConfig(),
         preReleaseConfig =
