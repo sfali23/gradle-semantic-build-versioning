@@ -1,4 +1,4 @@
-package com.alphasystem.gradle.semver.release
+package semverrelease
 
 /**
  * Represents the components of a version that can be incremented during a versioning operation.

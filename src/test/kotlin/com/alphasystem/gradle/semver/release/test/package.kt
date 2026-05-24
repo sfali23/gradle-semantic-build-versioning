@@ -1,6 +1,5 @@
 package com.alphasystem.gradle.semver.release.test
 
-import com.alphasystem.gradle.semver.release.ComponentToBump
 import com.alphasystem.gradle.semver.release.common.JGitAdapter
 import com.alphasystem.gradle.semver.release.internal.SemanticBuildVersionConfiguration
 import com.alphasystem.gradle.semver.release.internal.Version

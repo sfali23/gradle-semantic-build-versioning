@@ -1,7 +1,7 @@
 package com.alphasystem.gradle.semver.release.internal
 
-import com.alphasystem.gradle.semver.release.ComponentToBump
 import com.alphasystem.gradle.semver.release.VersionComponent
+import semverrelease.ComponentToBump
 import semverrelease.PreReleaseConfig
 
 fun PreReleaseConfig.toPreReleaseVersion(version: String): PreReleaseVersion {
