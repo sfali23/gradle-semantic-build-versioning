@@ -1,7 +1,6 @@
 package com.alphasystem.gradle.semver.release.internal
 
 import com.alphasystem.gradle.semver.release.VersionComponent
-import semverrelease.AutoBump
 import semverrelease.*
 
 @JvmRecord
