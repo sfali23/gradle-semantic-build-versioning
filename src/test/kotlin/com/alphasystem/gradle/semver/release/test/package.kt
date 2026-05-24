@@ -1,6 +1,6 @@
 package com.alphasystem.gradle.semver.release.test
 
-import com.alphasystem.gradle.semver.release.*
+import com.alphasystem.gradle.semver.release.VersionComponent
 import com.alphasystem.gradle.semver.release.common.JGitAdapter
 import com.alphasystem.gradle.semver.release.internal.SemanticBuildVersionConfiguration
 import com.alphasystem.gradle.semver.release.internal.Version
@@ -12,8 +12,7 @@ import semverrelease.AutoBump.Companion.DefaultMinorPattern
 import semverrelease.AutoBump.Companion.DefaultNewPreReleasePattern
 import semverrelease.AutoBump.Companion.DefaultPatchPattern
 import semverrelease.AutoBump.Companion.DefaultPromoteToReleasePattern
-import semverrelease.PreReleaseConfig
-import semverrelease.SnapshotConfig
+import semverrelease.*
 
 fun Config.readFailSafeString(path: String, defaultValue: String): String =
     if (this.hasPath(path)) this.getString(path) else defaultValue

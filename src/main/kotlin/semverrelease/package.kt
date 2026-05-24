@@ -1,4 +1,6 @@
-package com.alphasystem.gradle.semver.release
+package semverrelease
+
+import com.alphasystem.gradle.semver.release.VersionComponent
 
 const val DefaultBooleanValue = false
 const val DefaultStartingVersion: String = "0.1.0"

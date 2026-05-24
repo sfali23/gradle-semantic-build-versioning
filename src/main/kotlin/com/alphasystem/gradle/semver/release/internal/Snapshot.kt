@@ -1,7 +1,7 @@
 package com.alphasystem.gradle.semver.release.internal
 
-import com.alphasystem.gradle.semver.release.DefaultSnapshotPrefix
 import org.eclipse.jgit.util.StringUtils
+import semverrelease.DefaultSnapshotPrefix
 
 /**
  * Represents a snapshot version prefix that can optionally include metadata.

@@ -1,7 +1,5 @@
 package semverrelease
 
-import com.alphasystem.gradle.semver.release.DefaultSnapshotPrefix
-
 data class SnapshotConfig(
     val prefix: String = DefaultSnapshotPrefix,
     val appendCommitHash: Boolean = true,

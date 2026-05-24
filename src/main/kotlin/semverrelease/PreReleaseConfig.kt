@@ -1,8 +1,5 @@
 package semverrelease
 
-import com.alphasystem.gradle.semver.release.DefaultPreReleasePrefix
-import com.alphasystem.gradle.semver.release.DefaultPreReleaseSeparator
-import com.alphasystem.gradle.semver.release.DefaultPreReleaseStartingVersion
 import java.util.regex.Pattern
 
 /**
