@@ -17,3 +17,6 @@ allTests:
 
 spotless:
 	$(GRADLE) spotlessApply
+
+publishLocal:
+	$(GRADLE) publishToMavenLocal
