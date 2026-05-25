@@ -58,25 +58,16 @@ class JGitAdapter(workingDir: File, initialize: Boolean = false) {
         return emptyList()
     }
 
-    fun createTag(tag: String, message: String, annotated: Boolean): Ref? =
+    fun createTag(tag: String, annotated: Boolean, message: String?): Ref? =
         git.tag()
             .setName(tag)
             .setAnnotated(annotated)
             .let { if (annotated) it.setMessage(message) else it }
             .call()
 
-    fun pushTag(tagRef: Ref): List<PushResult> = git.push().add(tagRef).call().toList().filterNotNull()
+    fun createTag(tag: String, annotated: Boolean): Ref? = createTag(tag, annotated, null)
 
-    fun getCommits(): List<String> {
-        return try {
-            val branchRef = repository.resolve(repository.branch)
-            StreamSupport.stream(git.log().add(branchRef).call().spliterator(), false)
-                .map { obj: RevCommit -> obj.fullMessage }
-                .collect(Collectors.toList())
-        } catch (e: Exception) {
-            emptyList()
-        }
-    }
+    fun pushTag(tagRef: Ref): List<PushResult> = git.push().add(tagRef).call().toList().filterNotNull()
 
     fun getUnReleasedCommits(start: String): List<String> {
         return getUnReleasedCommits(start, Constants.HEAD)

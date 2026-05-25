@@ -36,7 +36,7 @@ class TestRepository(val workingDirectory: File) {
     }
 
     fun tag(tag: String, annotated: Boolean): TestRepository {
-        adapter.createTag(tag, "Releasing $tag", annotated)
+        adapter.createTag(tag, annotated)
         return this
     }
 

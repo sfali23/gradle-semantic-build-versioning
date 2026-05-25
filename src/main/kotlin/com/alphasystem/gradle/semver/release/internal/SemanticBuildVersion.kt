@@ -23,7 +23,10 @@ class SemanticBuildVersion(workingDir: File, val baseConfig: SemanticBuildVersio
             .sortedWith(Version.VERSION_COMPARATOR).getOrNull(0)
     }
 
-    fun getUnReleasedCommits(version: String): List<String> = adapter.getUnReleasedCommits("$tagPrefix$version")
+    fun getUnReleasedCommits(): List<String> {
+        val version = (latestVersion() ?: startingVersion).toStringValue()
+        return adapter.getUnReleasedCommits("$tagPrefix$version")
+    }
 
     fun determineVersion(): String {
         val currentBranch = adapter.getCurrentBranch()
@@ -72,8 +75,8 @@ class SemanticBuildVersion(workingDir: File, val baseConfig: SemanticBuildVersio
                         baseConfig.toVersionComponentToBump(),
                         addDefaultComponent(baseConfig.toVersionComponentToBump())
                     )
-                    .addComponentIfRequired(VersionComponent.PROMOTE_TO_RELEASE, { baseConfig.promoteToRelease })
-                    .addComponentIfRequired(VersionComponent.NEW_PRE_RELEASE, { baseConfig.newPreRelease })
+                    .addComponentIfRequired(VersionComponent.PROMOTE_TO_RELEASE) { baseConfig.promoteToRelease }
+                    .addComponentIfRequired(VersionComponent.NEW_PRE_RELEASE) { baseConfig.newPreRelease }
 
             return bumpVersion(
                 forcePush = false,
@@ -172,7 +175,7 @@ class SemanticBuildVersion(workingDir: File, val baseConfig: SemanticBuildVersio
         if (!versionComponents.hasEssentialComponents()) {
             if (forcePush) {
                 // We don't have any defined bump level use defaultBumpLevel
-                versionComponents.addComponentIfRequired(baseConfig.toDefaultVersionComponent(), { forcePush })
+                versionComponents.addComponentIfRequired(baseConfig.toDefaultVersionComponent()) { forcePush }
             } else if (baseConfig.forceBump) {
                 throw IllegalArgumentException(
                     "Couldn't determine next version, tag (${currentVersion.toStringValue()}) is already exists."
@@ -183,7 +186,7 @@ class SemanticBuildVersion(workingDir: File, val baseConfig: SemanticBuildVersio
         return currentVersion.bumpVersion(getSnapshotInfo(), versionComponents.getVersionComponents())
     }
 
-    private fun getSnapshotInfo(): Snapshot? {
+    private fun getSnapshotInfo(): Snapshot {
         val hash = if (snapshotConfig.appendCommitHash) {
             if (snapshotConfig.useShortHash) {
                 runCatching { adapter.getShortHash() }.getOrNull()
