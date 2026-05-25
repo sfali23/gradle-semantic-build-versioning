@@ -12,6 +12,12 @@ val DefaultComponentToBump: ComponentToBump = ComponentToBump.NONE
 val DefaultHotfixBranchPattern: Regex = initializeHotfixBranchPattern()
 val DefaultReleaseBranches: List<String> = listOf("main", "master")
 
+const val RELEASE_GROUP = "Release"
+
+const val ANSI_RESET: String = "\u001B[0m"
+const val ANSI_GREEN = "\u001B[32m"
+const val ANSI_RED: String = "\u001B[31m"
+
 private fun initializeHotfixBranchPattern(tagPrefix: String = DefaultTagPrefix): Regex =
     "^$tagPrefix(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\+$".toRegex()
 
