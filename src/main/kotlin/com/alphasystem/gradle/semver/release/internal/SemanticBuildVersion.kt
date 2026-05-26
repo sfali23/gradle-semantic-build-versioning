@@ -67,7 +67,7 @@ class SemanticBuildVersion(workingDir: File, val baseConfig: SemanticBuildVersio
         maybeLatestVersion: Version? = null
     ): Version {
         if (maybeLatestVersion == null) {
-            return startingVersion
+            return if (snapshotRequired) startingVersion.bumpSnapshot(getSnapshotInfo()) else startingVersion
         } else if (baseConfig.forceBump) {
             val versionComponents =
                 SetupVersionComponentsForBump()

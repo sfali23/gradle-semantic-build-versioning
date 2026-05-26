@@ -209,7 +209,7 @@ data class Version(
         return Version(major, minor, patch, hotfix, null, snapshot, preReleaseConfig)
     }
 
-    private fun bumpSnapshot(snapshot: Snapshot?): Version {
+    fun bumpSnapshot(snapshot: Snapshot?): Version {
         return Version(major, minor, patch, hotfix, preRelease, snapshot, preReleaseConfig)
     }
 }

@@ -131,3 +131,28 @@ Feature: Snapshot
       | minor         | false     | 0.2.0-snapshot   |
       | major         | true      | 1.0.0-snapshot   |
       | major         | false     | 1.0.0-snapshot   |
+
+  @snapshot
+  Scenario Outline: Create snapshot release for brand new repo (Auto bump)
+    Given Record main branch
+    And Load semantic build config from ({snapshotConfig={appendCommitHash=<appendCommitHash>}})
+    When Make changes and commit with message: 'snapshot with [<bumpComponent>]'
+    And Make some changes
+    And A tag with annotated: (<annotated>) flag is created
+    Then Generated version should be '<expectedVersion>'
+    And Close resources
+
+    Examples:
+      | bumpComponent | annotated |appendCommitHash | expectedVersion   |
+      | patch         | true      | true            | 0.1.0-SNAPSHOT    |
+      | patch         | true      | false           | 0.1.0-SNAPSHOT    |
+      | patch         | false     | true            | 0.1.0-SNAPSHOT    |
+      | patch         | false     | false           | 0.1.0-SNAPSHOT    |
+      | minor         | true      | true            | 0.1.0-SNAPSHOT    |
+      | minor         | true      | false           | 0.1.0-SNAPSHOT    |
+      | minor         | false     | true            | 0.1.0-SNAPSHOT    |
+      | minor         | false     | false           | 0.1.0-SNAPSHOT    |
+      | major         | true      | true            | 0.1.0-SNAPSHOT    |
+      | major         | true      | false           | 0.1.0-SNAPSHOT    |
+      | major         | false     | true            | 0.1.0-SNAPSHOT    |
+      | major         | false     | false           | 0.1.0-SNAPSHOT    |
