@@ -15,9 +15,6 @@ import semverrelease.RELEASE_GROUP
 abstract class TagTask : DefaultTask() {
 
     @get:Internal
-    abstract val version: Property<String>
-
-    @get:Internal
     abstract val releaseTagComment: Property<String>
 
     @get:Internal
@@ -40,10 +37,9 @@ abstract class TagTask : DefaultTask() {
         val baseConfig = config.get()
         val semanticBuildVersion = SemanticBuildVersion(workingDir, baseConfig)
         val tagPrefix = baseConfig.tagPrefix
-        val version = version.get()
+        val version = project.version.toString()
         val message = getTagComment(semanticBuildVersion)
         val tag = "$tagPrefix$version"
-        project.version = version
         println("${ANSI_GREEN}Creating tag: $tag$ANSI_RESET")
         JGitAdapter(workingDir).createTag(tag, message.isNotBlank(), message)
     }
@@ -54,7 +50,7 @@ abstract class TagTask : DefaultTask() {
         val unreleasedCommits =
             if (addUnReleasedCommitsToTagComment.get()) semanticBuildVersion.getUnReleasedCommits()
             else listOf()
-        val defaultComment = if (releaseTagComment.isNotBlank()) "$releaseTagComment: ${version.get()}" else ""
+        val defaultComment = if (releaseTagComment.isNotBlank()) "$releaseTagComment: ${project.version}" else ""
 
         return listOf(defaultComment, *unreleasedCommits.toTypedArray()).joinToString(System.lineSeparator())
     }

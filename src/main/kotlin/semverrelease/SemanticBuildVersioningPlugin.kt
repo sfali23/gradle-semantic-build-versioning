@@ -28,13 +28,12 @@ abstract class SemanticBuildVersioningPlugin : Plugin<Project> {
             it.description = "Print the current version"
             it.dependsOn(determineVersionTask)
             it.doLast {
-                println("Projected version is: $ANSI_GREEN${determineVersionTask.flatMap { it.version }.get()}$ANSI_RESET")
+                println("Projected version is: $ANSI_GREEN${it.project.version}$ANSI_RESET")
             }
         }
 
         project.tasks.register("generateTag", TagTask::class.java) { it ->
             it.config.set(config)
-            it.version.set(determineVersionTask.flatMap { it.version })
             it.releaseTagComment.set(extension.releaseTagComment)
             it.addUnReleasedCommitsToTagComment.set(extension.addUnReleasedCommitsToTagComment)
             it.workingDirectory.set(project.projectDir)

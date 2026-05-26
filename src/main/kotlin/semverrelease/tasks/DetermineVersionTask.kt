@@ -13,11 +13,8 @@ abstract class DetermineVersionTask : DefaultTask() {
 
     init {
         group = RELEASE_GROUP
-        description = "Determine the version"
+        description = "Determine next the version"
     }
-
-    @get:Internal
-    abstract val version: Property<String>
 
     @get:Internal
     abstract val config: Property<SemanticBuildVersionConfiguration>
@@ -28,6 +25,6 @@ abstract class DetermineVersionTask : DefaultTask() {
     @TaskAction
     fun determineVersion() {
         val determineVersion = SemanticBuildVersion(workingDirectory.get().asFile, config.get()).determineVersion()
-        version.set(determineVersion)
+        project.version = determineVersion
     }
 }
