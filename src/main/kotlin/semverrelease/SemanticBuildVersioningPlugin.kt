@@ -32,7 +32,7 @@ abstract class SemanticBuildVersioningPlugin : Plugin<Project> {
             }
         }
 
-        val generateTagTask = project.tasks.register("generateTag", TagTask::class.java) { it ->
+        project.tasks.register("generateTag", TagTask::class.java) { it ->
             it.config.set(config)
             it.version.set(determineVersionTask.flatMap { it.version })
             it.releaseTagComment.set(extension.releaseTagComment)
@@ -43,8 +43,7 @@ abstract class SemanticBuildVersioningPlugin : Plugin<Project> {
 
         project.tasks.register("pushChanges", PushChanges::class.java) {
             it.workingDirectory.set(project.projectDir)
-            it.tagRef.set(generateTagTask.flatMap { it.tagRef })
-            it.dependsOn(generateTagTask)
+            it.config.set(config)
         }
     }
 

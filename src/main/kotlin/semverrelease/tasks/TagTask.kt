@@ -3,12 +3,13 @@ package semverrelease.tasks
 import com.alphasystem.gradle.semver.release.common.JGitAdapter
 import com.alphasystem.gradle.semver.release.internal.SemanticBuildVersion
 import com.alphasystem.gradle.semver.release.internal.SemanticBuildVersionConfiguration
-import org.eclipse.jgit.lib.Ref
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
+import semverrelease.ANSI_GREEN
+import semverrelease.ANSI_RESET
 import semverrelease.RELEASE_GROUP
 
 abstract class TagTask : DefaultTask() {
@@ -28,9 +29,6 @@ abstract class TagTask : DefaultTask() {
     @get:Internal
     abstract val workingDirectory: RegularFileProperty
 
-    @get:Internal
-    abstract val tagRef: Property<Ref>
-
     init {
         group = RELEASE_GROUP
         description = "Create a tag"
@@ -45,9 +43,8 @@ abstract class TagTask : DefaultTask() {
         val version = version.get()
         val message = getTagComment(semanticBuildVersion)
         val tag = "$tagPrefix$version"
-
-        val ref = JGitAdapter(workingDir).createTag(tag, message.isNotBlank(), message)
-        tagRef.set(ref)
+        println("${ANSI_GREEN}Creating tag: $tag$ANSI_RESET")
+        JGitAdapter(workingDir).createTag(tag, message.isNotBlank(), message)
     }
 
     private fun getTagComment(semanticBuildVersion: SemanticBuildVersion): String {

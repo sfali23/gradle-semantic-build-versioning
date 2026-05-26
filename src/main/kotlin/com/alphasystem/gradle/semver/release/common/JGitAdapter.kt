@@ -51,12 +51,14 @@ class JGitAdapter(workingDir: File, initialize: Boolean = false) {
         val ref = repository.resolve(repository.branch)
         if (ref != null) {
             return StreamSupport.stream(git.log().add(ref).call().spliterator(), false)
-                .flatMap { rev: RevCommit -> tags.getOrDefault(rev.id, emptyList()).stream() }
+                .flatMap { rev -> tags.getOrDefault(rev.id, emptyList()).stream() }
                 .map { tagRef: Ref -> tagRef.name.replace(Constants.R_TAGS, "") }
                 .collect(Collectors.toList())
         }
         return emptyList()
     }
+
+    fun getTag(tag: String): Ref? = repository.findRef("${Constants.R_TAGS}$tag")
 
     fun createTag(tag: String, annotated: Boolean, message: String?): Ref? =
         git.tag()
@@ -67,11 +69,12 @@ class JGitAdapter(workingDir: File, initialize: Boolean = false) {
 
     fun createTag(tag: String, annotated: Boolean): Ref? = createTag(tag, annotated, null)
 
-    fun pushTag(tagRef: Ref): List<PushResult> = git.push().add(tagRef).call().toList().filterNotNull()
-
-    fun getUnReleasedCommits(start: String): List<String> {
-        return getUnReleasedCommits(start, Constants.HEAD)
+    fun pushTag(tag: String): List<PushResult> {
+        val ref = getTag(tag) ?: throw RuntimeException("Tag $tag not found")
+        return git.push().add(ref).call().toList().filterNotNull()
     }
+
+    fun getUnReleasedCommits(start: String): List<String> = getUnReleasedCommits(start, Constants.HEAD)
 
     fun getUnReleasedCommits(start: String, end: String): List<String> {
         return try {
@@ -95,7 +98,7 @@ class JGitAdapter(workingDir: File, initialize: Boolean = false) {
                     "Commit($shortHash, $message)"
                 }
                 .collect(Collectors.toList())
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             emptyList()
         }
     }
@@ -118,7 +121,7 @@ class JGitAdapter(workingDir: File, initialize: Boolean = false) {
             )
                 .map { obj: RevCommit -> obj.fullMessage }
                 .collect(Collectors.toList())
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             emptyList()
         }
     }
