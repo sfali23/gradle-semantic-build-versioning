@@ -43,6 +43,7 @@ abstract class TagTask : DefaultTask() {
         val version = version.get()
         val message = getTagComment(semanticBuildVersion)
         val tag = "$tagPrefix$version"
+        project.version = version
         println("${ANSI_GREEN}Creating tag: $tag$ANSI_RESET")
         JGitAdapter(workingDir).createTag(tag, message.isNotBlank(), message)
     }
