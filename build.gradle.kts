@@ -1,4 +1,4 @@
-// import net.vivin.gradle.versioning.tasks.TagTask
+import io.github.gradlenexus.publishplugin.InitializeNexusStagingRepository
 
 plugins {
     kotlin("jvm") version "2.3.21"
@@ -10,9 +10,6 @@ plugins {
     id("com.diffplug.spotless") version "8.5.1"
     id("io.github.sfali23.gradle-semantic-build-versioning") version ("0.2.0")
 }
-
-group = "io.github.sfali23"
-version = "0.2.0"
 
 spotless {
     java {
@@ -52,6 +49,8 @@ repositories {
 }
 
 java {
+    withJavadocJar()
+    withSourcesJar()
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(25))
     }
@@ -64,9 +63,6 @@ tasks.withType<JavaCompile>().configureEach {
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
     compilerOptions.jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
 }
-
-project.ext["gradle.publish.key"] = System.getenv("PUBLISH_KEY")
-project.ext["gradle.publish.secret"] = System.getenv("PUBLISH_SECRET")
 
 sourceSets.test
     .get()
@@ -189,6 +185,9 @@ publishing {
         create<MavenPublication>("mavenJava") {
             from(components["java"])
 
+            groupId = "io.github.sfali23"
+            artifactId = "gradle-semantic-build-versioning"
+
             pom {
                 name.set("Gradle Semantic Build Versioning Plugin")
                 description.set("This is a Gradle settings-plugin that provides support for semantic versioning of builds.")
@@ -205,7 +204,7 @@ publishing {
                     developer {
                         id.set("sfali23")
                         name.set("Syed Farhan Ali")
-                        email.set("sf.syed.ali@gmail.com")
+                        email.set("f.syed.ali@gmail.com")
                     }
                 }
 
@@ -229,11 +228,6 @@ signing {
     )
 }
 
-// Only sign when not building a snapshot version
-tasks.withType<Sign>().configureEach {
-    onlyIf { !project.version.toString().contains("-SNAPSHOT") }
-}
-
 nexusPublishing {
     repositories {
         sonatype {
@@ -245,10 +239,16 @@ nexusPublishing {
 
 semverrelease {
     startingVersion.set("0.2.0")
-    snapshot.set(true)
-    forceBump.set(true)
 }
 
-tasks.named("setReleaseVersion") {
+tasks.named("createTag") {
     finalizedBy("publishToSonatype", "closeSonatypeStagingRepository")
+}
+
+tasks.withType(InitializeNexusStagingRepository::class.java).configureEach {
+    shouldRunAfter(tasks.withType(Sign::class.java))
+}
+
+tasks.named("closeSonatypeStagingRepository") {
+    finalizedBy("pushTag")
 }
