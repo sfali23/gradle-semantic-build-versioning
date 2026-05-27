@@ -5,9 +5,10 @@ plugins {
     `maven-publish`
     jacoco
     `java-gradle-plugin`
-    id("io.github.gradle-nexus.publish-plugin") version "2.0.0"
     signing
+    id("io.github.gradle-nexus.publish-plugin") version "2.0.0"
     id("com.diffplug.spotless") version "8.5.1"
+    id("io.github.sfali23.gradle-semantic-build-versioning") version ("0.2.0")
 }
 
 group = "io.github.sfali23"
@@ -181,4 +182,72 @@ gradlePlugin {
             tags.set(listOf("versioning", "semantic-versioning", "git", "build-versioning", "auto-versioning", "version"))
         }
     }
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("mavenJava") {
+            from(components["java"])
+
+            pom {
+                name.set("Gradle Semantic Build Versioning Plugin")
+                description.set("This is a Gradle settings-plugin that provides support for semantic versioning of builds.")
+                url.set("https://github.com/sfali23/gradle-semantic-build-versioning")
+
+                licenses {
+                    license {
+                        name.set("The Apache License, Version 2.0")
+                        url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+                    }
+                }
+
+                developers {
+                    developer {
+                        id.set("sfali23")
+                        name.set("Syed Farhan Ali")
+                        email.set("sf.syed.ali@gmail.com")
+                    }
+                }
+
+                scm {
+                    connection.set("scm:git:git://github.com/sfali23/gradle-semantic-build-versioning.git")
+                    developerConnection.set("scm:git:ssh://github.com:sfali23/gradle-semantic-build-versioning.git")
+                    url.set("https://github.com/sfali23/gradle-semantic-build-versioning/tree/main")
+                }
+            }
+        }
+    }
+}
+
+// Configure jar signing and signing credentials
+signing {
+    sign(publishing.publications["mavenJava"])
+
+    useInMemoryPgpKeys(
+        project.findProperty("signing.secretKey") as String? ?: System.getenv("SIGNING_SECRET_KEY"),
+        project.findProperty("signing.password") as String? ?: System.getenv("SIGNING_PASSWORD"),
+    )
+}
+
+// Only sign when not building a snapshot version
+tasks.withType<Sign>().configureEach {
+    onlyIf { !project.version.toString().contains("-SNAPSHOT") }
+}
+
+nexusPublishing {
+    repositories {
+        sonatype {
+            nexusUrl.set(uri("https://ossrh-staging-api.central.sonatype.com/service/local/"))
+            snapshotRepositoryUrl.set(uri("https://central.sonatype.com/repository/maven-snapshots/"))
+        }
+    }
+}
+
+semverrelease {
+    startingVersion.set("0.2.0")
+    snapshot.set(true)
+}
+
+tasks.named("setReleaseVersion") {
+    finalizedBy("publishToSonatype", "closeSonatypeStagingRepository")
 }
