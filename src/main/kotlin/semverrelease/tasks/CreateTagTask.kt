@@ -12,7 +12,21 @@ import semverrelease.ANSI_GREEN
 import semverrelease.ANSI_RESET
 import semverrelease.RELEASE_GROUP
 
-abstract class TagTask : DefaultTask() {
+/**
+ * An abstract task implementation for creating a Git tag in a project repository
+ * based on the semantic versioning configuration and project state.
+ *
+ * The task is part of the release process and encapsulates logic to determine the tag
+ * name, tag message, and whether any additional commit information should be appended to
+ * the tag message.
+ *
+ * This task works in conjunction with `SemanticBuildVersionConfiguration` to manage
+ * versioning and tagging conventions.
+ *
+ * The created tag will adhere to the tag prefix and versioning rules defined in the
+ * semantic version configuration.
+ */
+abstract class CreateTagTask : DefaultTask() {
 
     @get:Internal
     abstract val releaseTagComment: Property<String>

@@ -3,9 +3,9 @@ package semverrelease
 import com.alphasystem.gradle.semver.release.internal.SemanticBuildVersionConfiguration
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import semverrelease.tasks.DetermineVersionTask
-import semverrelease.tasks.PushChanges
-import semverrelease.tasks.TagTask
+import semverrelease.tasks.SetReleaseVersionTask
+import semverrelease.tasks.PushTagTask
+import semverrelease.tasks.CreateTagTask
 
 abstract class SemanticBuildVersioningPlugin : Plugin<Project> {
 
@@ -18,7 +18,7 @@ abstract class SemanticBuildVersioningPlugin : Plugin<Project> {
             buildConfig(extension)
         }
 
-        val determineVersionTask = project.tasks.register("determineVersion", DetermineVersionTask::class.java) {
+        val setReleaseVersion = project.tasks.register("setReleaseVersion", SetReleaseVersionTask::class.java) {
             it.config.set(config)
             it.workingDirectory.set(project.projectDir)
         }
@@ -26,21 +26,21 @@ abstract class SemanticBuildVersioningPlugin : Plugin<Project> {
         project.tasks.register("printVersion") { it ->
             it.group = RELEASE_GROUP
             it.description = "Print the current version"
-            it.dependsOn(determineVersionTask)
+            it.dependsOn(setReleaseVersion)
             it.doLast {
                 println("Projected version is: $ANSI_GREEN${it.project.version}$ANSI_RESET")
             }
         }
 
-        project.tasks.register("generateTag", TagTask::class.java) { it ->
+        project.tasks.register("createTag", CreateTagTask::class.java) { it ->
             it.config.set(config)
             it.releaseTagComment.set(extension.releaseTagComment)
             it.addUnReleasedCommitsToTagComment.set(extension.addUnReleasedCommitsToTagComment)
             it.workingDirectory.set(project.projectDir)
-            it.dependsOn("determineVersion")
+            it.dependsOn("setReleaseVersion")
         }
 
-        project.tasks.register("pushChanges", PushChanges::class.java) {
+        project.tasks.register("pushTag", PushTagTask::class.java) {
             it.workingDirectory.set(project.projectDir)
             it.config.set(config)
         }
