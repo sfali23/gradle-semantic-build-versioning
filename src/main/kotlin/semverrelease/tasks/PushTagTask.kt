@@ -7,6 +7,7 @@ import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.UntrackedTask
 import semverrelease.ANSI_GREEN
 import semverrelease.ANSI_RESET
 import semverrelease.RELEASE_GROUP
@@ -31,6 +32,7 @@ import semverrelease.RELEASE_GROUP
  * - Prints a log message showing the tag being pushed for better traceability during the build process.
  * - Uses the JGit adapter to push the constructed tag to the remote repository.
  */
+@UntrackedTask(because = "Git tag pushing involves external state and should not be cached")
 abstract class PushTagTask: DefaultTask() {
 
     @get:Internal

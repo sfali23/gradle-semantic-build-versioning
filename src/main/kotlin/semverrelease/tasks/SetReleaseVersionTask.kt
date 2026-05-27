@@ -7,6 +7,7 @@ import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.UntrackedTask
 import semverrelease.RELEASE_GROUP
 
 /**
@@ -31,6 +32,7 @@ import semverrelease.RELEASE_GROUP
  * The `determineVersion` method calculates the next release version by constructing a `SemanticBuildVersion`
  * object with the provided `workingDirectory` and `config`. The calculated version is then assigned to `project.version`.
  */
+@UntrackedTask(because = "Version determination involves external Git state and should not be cached")
 abstract class SetReleaseVersionTask : DefaultTask() {
 
     init {

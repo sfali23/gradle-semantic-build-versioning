@@ -8,6 +8,7 @@ import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.UntrackedTask
 import semverrelease.ANSI_GREEN
 import semverrelease.ANSI_RESET
 import semverrelease.RELEASE_GROUP
@@ -26,6 +27,7 @@ import semverrelease.RELEASE_GROUP
  * The created tag will adhere to the tag prefix and versioning rules defined in the
  * semantic version configuration.
  */
+@UntrackedTask(because = "Git tag creation involves external state and should not be cached")
 abstract class CreateTagTask : DefaultTask() {
 
     @get:Internal
