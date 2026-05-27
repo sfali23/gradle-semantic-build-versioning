@@ -246,6 +246,7 @@ nexusPublishing {
 semverrelease {
     startingVersion.set("0.2.0")
     snapshot.set(true)
+    forceBump.set(true)
 }
 
 /*tasks.named("setReleaseVersion") {
