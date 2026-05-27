@@ -29,6 +29,9 @@ class SemanticBuildVersion(workingDir: File, val baseConfig: SemanticBuildVersio
     }
 
     fun determineVersion(): String {
+        if (adapter.hasUncommittedChanges()) {
+            throw IllegalArgumentException("Cannot determine next version, there are uncommitted changes.")
+        }
         val currentBranch = adapter.getCurrentBranch()
         val hotfixRequired = baseConfig.hotfixBranchPattern.nonEmpty(currentBranch)
         val snapshotRequired = snapshotRequired(currentBranch, hotfixRequired)
@@ -43,7 +46,6 @@ class SemanticBuildVersion(workingDir: File, val baseConfig: SemanticBuildVersio
 
     private fun snapshotRequired(currentBranch: String, hotfixRequired: Boolean): Boolean {
         val notAReleaseBranch = !baseConfig.isReleaseBranch(currentBranch)
-        val hasUncommitedChanges = adapter.hasUncommittedChanges()
         val snapshotFlag = baseConfig.snapshot
         if (notAReleaseBranch) {
             logger.warn(
@@ -51,13 +53,10 @@ class SemanticBuildVersion(workingDir: File, val baseConfig: SemanticBuildVersio
                 currentBranch
             )
         }
-        if (hasUncommitedChanges) {
-            logger.warn("Current branch ({}) has uncommitted changes, creating snapshot version", currentBranch)
-        }
         if (snapshotFlag) {
             logger.warn("Snapshot flag is set to true, creating snapshot version")
         }
-        return (notAReleaseBranch || hasUncommitedChanges || snapshotFlag) && !hotfixRequired
+        return (notAReleaseBranch || snapshotFlag) && !hotfixRequired
     }
 
     private fun determineVersion(
