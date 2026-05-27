@@ -9,12 +9,6 @@ clean:
 test:
 	$(GRADLE) test
 
-integrationTest:
-	$(GRADLE) integrationTest
-
-allTests:
-	$(GRADLE) test integrationTest
-
 spotless:
 	$(GRADLE) spotlessApply
 
