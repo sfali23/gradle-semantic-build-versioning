@@ -1,6 +1,9 @@
 .idea/
 build/
 .gradle
+.kotlin
+.bloop
+bin/**
 .metals/**
 *.iml
 settings.json
