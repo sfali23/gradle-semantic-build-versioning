@@ -1,15 +1,17 @@
 // import net.vivin.gradle.versioning.tasks.TagTask
 
 plugins {
-    id("com.gradle.plugin-publish") version "1.3.0"
     kotlin("jvm") version "2.3.21"
     `maven-publish`
     jacoco
     `java-gradle-plugin`
+    id("io.github.gradle-nexus.publish-plugin") version "2.0.0"
+    signing
     id("com.diffplug.spotless") version "8.5.1"
 }
 
 group = "io.github.sfali23"
+version = "0.2.0"
 
 spotless {
     java {
