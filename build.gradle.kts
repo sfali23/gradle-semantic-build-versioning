@@ -2,7 +2,6 @@
 
 plugins {
     id("com.gradle.plugin-publish") version "1.3.0"
-    groovy
     kotlin("jvm") version "2.3.21"
     `maven-publish`
     jacoco
@@ -66,16 +65,6 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach 
 project.ext["gradle.publish.key"] = System.getenv("PUBLISH_KEY")
 project.ext["gradle.publish.secret"] = System.getenv("PUBLISH_SECRET")
 
-// Keep Java source directories separate from Groovy to avoid duplicate compilation
-sourceSets.main
-    .get()
-    .groovy
-    .srcDir("src/main/groovy")
-
-sourceSets.test
-    .get()
-    .java
-    .srcDir("src/test/java")
 sourceSets.test
     .get()
     .java
@@ -119,11 +108,10 @@ dependencies {
     implementation("org.eclipse.jgit:org.eclipse.jgit:7.6.0.202603022253-r")
 
     testImplementation("org.eclipse.jgit:org.eclipse.jgit.junit:7.6.0.202603022253-r")
-    testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
     testImplementation("com.typesafe:config:1.4.8")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher:1.10.0")
-
+    testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
     testImplementation("org.junit.platform:junit-platform-suite:1.10.0")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher:1.10.0")
     testImplementation("io.cucumber:cucumber-java:7.14.0")
     testImplementation("io.cucumber:cucumber-junit-platform-engine:7.14.0")
     testImplementation("io.cucumber:cucumber-expressions:16.1.2")
@@ -137,15 +125,6 @@ dependencies {
 tasks.jacocoTestReport {
     reports {
         xml.required.set(true)
-    }
-}
-
-// this is useful for better coverage values
-// it should not be used for a final production build
-if (project.hasProperty("disableGroovyOptimizations")) {
-    tasks.withType<GroovyCompile>().configureEach {
-        inputs.property("disableGroovyOptimizations", project.hasProperty("disableGroovyOptimizations"))
-        groovyOptions.optimizationOptions?.set("all", false)
     }
 }
 
