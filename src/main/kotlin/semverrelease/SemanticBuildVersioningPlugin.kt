@@ -3,6 +3,7 @@ package semverrelease
 import com.alphasystem.gradle.semver.release.internal.SemanticBuildVersionConfiguration
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.plugins.BasePlugin
 import semverrelease.tasks.SetReleaseVersionTask
 import semverrelease.tasks.PushTagTask
 import semverrelease.tasks.CreateTagTask
@@ -12,6 +13,11 @@ abstract class SemanticBuildVersioningPlugin : Plugin<Project> {
     private var config = SemanticBuildVersionConfiguration()
 
     override fun apply(project: Project) {
+        // ensure the base plugin is applied
+        if (!project.plugins.hasPlugin(BasePlugin::class.java)) {
+            project.plugins.apply(BasePlugin::class.java)
+        }
+
         val extension = project.extensions.create("semverrelease", SemanticBuildVersioningExtension::class.java, project)
 
         project.afterEvaluate {
