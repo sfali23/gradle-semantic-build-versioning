@@ -248,6 +248,6 @@ semverrelease {
     snapshot.set(true)
 }
 
-tasks.named("setReleaseVersion") {
+/*tasks.named("setReleaseVersion") {
     finalizedBy("publishToSonatype", "closeSonatypeStagingRepository")
-}
+}*/
