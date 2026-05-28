@@ -206,3 +206,10 @@ semverrelease {
     startingVersion.set("0.2.0")
     extraReleaseBranches.set(listOf("fix_publishing"))
 }
+
+signing {
+    val signingKey: String? by project
+    val signingPassword: String? by project
+
+    useInMemoryPgpKeys(signingKey, signingPassword)
+}
