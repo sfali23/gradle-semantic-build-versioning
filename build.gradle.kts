@@ -220,12 +220,12 @@ publishing {
 
 // Configure jar signing and signing credentials
 signing {
-    sign(publishing.publications["mavenJava"])
+    val signingKey: String? by project
+    val signingPassword: String? by project
+    val signingKeyId: String? by project
 
-    useInMemoryPgpKeys(
-        project.findProperty("signing.secretKey") as String? ?: System.getenv("SIGNING_SECRET_KEY"),
-        project.findProperty("signing.password") as String? ?: System.getenv("SIGNING_PASSWORD"),
-    )
+    useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
+    sign(publishing.publications["mavenJava"])
 }
 
 nexusPublishing {
