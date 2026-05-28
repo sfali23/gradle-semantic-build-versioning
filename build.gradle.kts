@@ -1,12 +1,8 @@
-import io.github.gradlenexus.publishplugin.InitializeNexusStagingRepository
-
 plugins {
     kotlin("jvm") version "2.3.21"
-    `maven-publish`
     jacoco
     `java-gradle-plugin`
-    signing
-    id("io.github.gradle-nexus.publish-plugin") version "2.0.0"
+    id("com.vanniktech.maven.publish") version "0.36.0"
     id("com.diffplug.spotless") version "8.5.1"
     id("io.github.sfali23.gradle-semantic-build-versioning") version ("0.2.0")
 }
@@ -44,7 +40,7 @@ repositories {
 }
 
 java {
-    withJavadocJar()
+   // withJavadocJar()
     withSourcesJar()
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(25))
@@ -172,64 +168,36 @@ gradlePlugin {
     }
 }
 
-publishing {
-    publications {
-        create<MavenPublication>("mavenJava") {
-            from(components["java"])
+mavenPublishing {
+    publishToMavenCentral(automaticRelease = true)
+    signAllPublications()
 
-            groupId = "io.github.sfali23"
-            artifactId = "gradle-semantic-build-versioning"
+    coordinates("io.github.sfali23", "gradle-semantic-build-versioning", "$version")
 
-            pom {
-                name.set("Gradle Semantic Build Versioning Plugin")
-                description.set("This is a Gradle settings-plugin that provides support for semantic versioning of builds.")
-                url.set("https://github.com/sfali23/gradle-semantic-build-versioning")
+    pom {
+        name.set("Gradle Semantic Build Versioning Plugin")
+        description.set("This is a Gradle settings-plugin that provides support for semantic versioning of builds.")
+        url.set("https://github.com/sfali23/gradle-semantic-build-versioning")
 
-                licenses {
-                    license {
-                        name.set("The Apache License, Version 2.0")
-                        url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
-                    }
-                }
-
-                developers {
-                    developer {
-                        id.set("sfali23")
-                        name.set("Syed Farhan Ali")
-                        email.set("f.syed.ali@gmail.com")
-                    }
-                }
-
-                scm {
-                    connection.set("scm:git:git://github.com/sfali23/gradle-semantic-build-versioning.git")
-                    developerConnection.set("scm:git:ssh://github.com:sfali23/gradle-semantic-build-versioning.git")
-                    url.set("https://github.com/sfali23/gradle-semantic-build-versioning/tree/main")
-                }
+        licenses {
+            license {
+                name.set("The Apache License, Version 2.0")
+                url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
             }
         }
-    }
-}
 
-signing {
-    val signingKey: String? by project
-    val signingPassword: String? by project
+        developers {
+            developer {
+                id.set("sfali23")
+                name.set("Syed Farhan Ali")
+                email.set("f.syed.ali@gmail.com")
+            }
+        }
 
-    useInMemoryPgpKeys(signingKey, signingPassword)
-    sign(publishing.publications["mavenJava"])
-}
-
-nexusPublishing {
-    repositories {
-        sonatype {
-            nexusUrl.set(uri("https://ossrh-staging-api.central.sonatype.com/service/local/"))
-            snapshotRepositoryUrl.set(uri("https://central.sonatype.com/repository/maven-snapshots/"))
-
-            // Configure Sonatype credentials
-            val sonatypeUsername: String? by project
-            val sonatypePassword: String? by project
-
-            username.set(sonatypeUsername)
-            password.set(sonatypePassword)
+        scm {
+            connection.set("scm:git:git://github.com/sfali23/gradle-semantic-build-versioning.git")
+            developerConnection.set("scm:git:ssh://github.com:sfali23/gradle-semantic-build-versioning.git")
+            url.set("https://github.com/sfali23/gradle-semantic-build-versioning/tree/main")
         }
     }
 }
@@ -237,24 +205,4 @@ nexusPublishing {
 semverrelease {
     startingVersion.set("0.2.0")
     extraReleaseBranches.set(listOf("fix_publishing"))
-}
-
-tasks.matching { it.name == "publishToSonatype" }.configureEach {
-    dependsOn("setReleaseVersion")
-}
-
-tasks.matching { it.name == "closeAndReleaseSonatypeStagingRepository" }.configureEach {
-    dependsOn("publishToSonatype")
-}
-
-tasks.named("createTag") {
-    dependsOn("closeAndReleaseSonatypeStagingRepository")
-}
-
-tasks.named("pushTag") {
-    dependsOn("createTag")
-}
-
-tasks.withType(InitializeNexusStagingRepository::class.java).configureEach {
-    shouldRunAfter(tasks.withType(Sign::class.java))
 }
