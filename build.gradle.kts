@@ -220,19 +220,14 @@ publishing {
     }
 }
 
-// Configure jar signing and signing credentials
-// Temporarily disabled for snapshot builds
-// val signingKey: String? by project
-// val signingPassword: String? by project
-// val signingKeyId: String? by project
+signing {
+    val signingKeyId: String? by project
+    val signingKey: String? by project
+    val signingPassword: String? by project
 
-// Only configure signing for releases, not snapshots
-// if (!project.hasProperty("version") || !project.version.toString().endsWith("-SNAPSHOT")) {
-//     signing {
-//         useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
-//         sign(publishing.publications["mavenJava"])
-//     }
-// }
+    useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
+    sign(publishing.publications["mavenJava"])
+}
 
 nexusPublishing {
     repositories {
@@ -251,7 +246,7 @@ tasks.matching { it.name == "publishToSonatype" }.configureEach {
     dependsOn("setReleaseVersion")
 }
 
-tasks.matching{ it.name == "closeAndReleaseSonatypeStagingRepository"}.configureEach {
+tasks.matching { it.name == "closeAndReleaseSonatypeStagingRepository" }.configureEach {
     dependsOn("publishToSonatype")
 }
 
