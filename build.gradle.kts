@@ -219,17 +219,18 @@ publishing {
 }
 
 // Configure jar signing and signing credentials
-val signingKey: String? by project
-val signingPassword: String? by project
-val signingKeyId: String? by project
+// Temporarily disabled for snapshot builds
+// val signingKey: String? by project
+// val signingPassword: String? by project
+// val signingKeyId: String? by project
 
 // Only configure signing for releases, not snapshots
-if (!project.hasProperty("version") || !project.version.toString().endsWith("-SNAPSHOT")) {
-    signing {
-        useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
-        sign(publishing.publications["mavenJava"])
-    }
-}
+// if (!project.hasProperty("version") || !project.version.toString().endsWith("-SNAPSHOT")) {
+//     signing {
+//         useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
+//         sign(publishing.publications["mavenJava"])
+//     }
+// }
 
 nexusPublishing {
     repositories {
