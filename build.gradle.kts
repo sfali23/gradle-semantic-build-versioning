@@ -205,7 +205,6 @@ mavenPublishing {
 semverrelease {
     startingVersion.set("0.2.0")
     addUnReleasedCommitsToTagComment.set(true)
-    extraReleaseBranches.set(listOf("fix_publishing"))
 }
 
 tasks.named("createTag") {
