@@ -241,14 +241,22 @@ semverrelease {
     startingVersion.set("0.2.0")
 }
 
+tasks.matching { it.name == "publishToSonatype" }.configureEach {
+    dependsOn("setReleaseVersion")
+}
+
+tasks.matching{ it.name == "closeAndReleaseSonatypeStagingRepository"}.configureEach {
+    dependsOn("publishToSonatype")
+}
+
 tasks.named("createTag") {
-    finalizedBy("publishToSonatype", "closeSonatypeStagingRepository")
+    dependsOn("closeAndReleaseSonatypeStagingRepository")
+}
+
+tasks.named("pushTag") {
+    dependsOn("createTag")
 }
 
 tasks.withType(InitializeNexusStagingRepository::class.java).configureEach {
     shouldRunAfter(tasks.withType(Sign::class.java))
-}
-
-tasks.named("closeSonatypeStagingRepository") {
-    finalizedBy("pushTag")
 }
