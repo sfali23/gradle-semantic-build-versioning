@@ -450,3 +450,5 @@ It is useful to check out a tag when you want to create a build of an older vers
 Please make sure you add tests when fixing bugs or adding new features.
 
 **Currently I am extremely busy as I'm working full-time and going to school full-time for a PhD. You may not receive a response from me for weeks (it's nothing personal!). I'm hoping to be done with my PhD sometime next year, after which I will have more time to devote to this project. I sincerely appreciate the fact that people are using it and are interested enough to report issues and PRs, and once again, I apologize for being unable to respond to these in a timely fashion.**
+
+<!-- GitHub refresh comment -->
