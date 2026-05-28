@@ -1,12 +1,12 @@
 package com.alphasystem.gradle.semver.release.internal
 
+import com.alphasystem.gradle.semver.release.common.JGitAdapter
 import com.alphasystem.gradle.semver.release.common.TestRepository
 import com.alphasystem.gradle.semver.release.test.toSemanticBuildVersionConfiguration
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import java.nio.file.Files
+import java.nio.file.Paths
 import java.util.UUID
 
 @DisplayName("Semantic Build Version Test")
@@ -20,26 +20,16 @@ class SemanticBuildVersionTest {
 
     // @Test
     fun testSingle() {
+        val workingDirectory = Paths.get("/Users/sfali/development/personal/gradle-semantic-build-versioning").toFile()
         val updateConfig = toSemanticBuildVersionConfiguration("{startingVersion=0.2.0}")
         val sbv = SemanticBuildVersion(workingDirectory, updateConfig)
 
-        mainBranchName = repository.getBranchName()
-        repository.makeChanges().commit("Initial commit")
-        createAnnotatedTag(sbv)
+        val adapter = JGitAdapter(workingDirectory)
+        adapter.getGit().tagList().call().forEach { println(it.name) }
 
-        repository.makeChanges().commit("Second commit").makeChanges().commit("Third commit [minor]").makeChanges()
-        createAnnotatedTag(sbv)
+        println(adapter.getTagsForCurrentBranch())
+        println(sbv.determineVersion())
 
-        repository.commit().makeChanges().commit("Fourth commit").makeChanges()
-        createAnnotatedTag(sbv)
-
-        repository.commit().makeChanges().commit("Fifth commit").makeChanges()
-        createAnnotatedTag(sbv)
-
-        repository.commit().makeChanges().commit("Sixth commit").commit().commit().commit().commit()
-        createAnnotatedTag(sbv)
-
-        close()
     }
 
     private fun createAnnotatedTag(semanticBuildVersion: SemanticBuildVersion, annotated: Boolean = true): String {
