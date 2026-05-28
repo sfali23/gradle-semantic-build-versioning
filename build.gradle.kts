@@ -203,7 +203,7 @@ mavenPublishing {
 }
 
 semverrelease {
-    startingVersion.set("0.2.0")
+    startingVersion.set("0.3.0")
     addUnReleasedCommitsToTagComment.set(true)
 }
 
