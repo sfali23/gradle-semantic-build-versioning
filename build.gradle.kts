@@ -172,7 +172,8 @@ mavenPublishing {
     publishToMavenCentral(automaticRelease = true)
     signAllPublications()
 
-    coordinates("io.github.sfali23", "gradle-semantic-build-versioning", "$version")
+    println("Publishing to Maven Central: ${project.version}")
+    coordinates("io.github.sfali23", "gradle-semantic-build-versioning")
 
     pom {
         name.set("Gradle Semantic Build Versioning Plugin")
@@ -205,4 +206,12 @@ mavenPublishing {
 semverrelease {
     startingVersion.set("0.2.0")
     extraReleaseBranches.set(listOf("fix_publishing"))
+}
+
+tasks.named("createTag") {
+    dependsOn("publishToMavenCentral")
+}
+
+tasks.named("publishToMavenCentral") {
+    dependsOn("setReleaseVersion")
 }
