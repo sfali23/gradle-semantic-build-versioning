@@ -240,6 +240,7 @@ nexusPublishing {
 
 semverrelease {
     startingVersion.set("0.2.0")
+    extraReleaseBranches.set(listOf("fix_publishing"))
 }
 
 tasks.matching { it.name == "publishToSonatype" }.configureEach {
