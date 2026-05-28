@@ -1,15 +1,13 @@
-import io.github.gradlenexus.publishplugin.InitializeNexusStagingRepository
-
 plugins {
     kotlin("jvm") version "2.3.21"
-    `maven-publish`
     jacoco
     `java-gradle-plugin`
-    signing
-    id("io.github.gradle-nexus.publish-plugin") version "2.0.0"
+    id("com.vanniktech.maven.publish") version "0.36.0"
     id("com.diffplug.spotless") version "8.5.1"
     id("io.github.sfali23.gradle-semantic-build-versioning") version ("0.2.0")
 }
+
+group = "io.github.sfali23"
 
 spotless {
     java {
@@ -36,20 +34,12 @@ spotless {
     }
 }
 
-/*tasks.withType<TagTask> {
-    dependsOn(tasks.named("publishPlugins"))
-}
-tasks.named("publishPlugins").configure {
-    dependsOn(tasks.named("build"))
-}*/
-
 repositories {
     mavenCentral()
     gradlePluginPortal()
 }
 
 java {
-    withJavadocJar()
     withSourcesJar()
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(25))
@@ -105,6 +95,7 @@ val createJacocoAgentClasspathFile by tasks.registering {
 
 dependencies {
     implementation("org.eclipse.jgit:org.eclipse.jgit:7.6.0.202603022253-r")
+    implementation("org.eclipse.jgit:org.eclipse.jgit.ssh.apache:7.6.0.202603022253-r")
 
     testImplementation("org.eclipse.jgit:org.eclipse.jgit.junit:7.6.0.202603022253-r")
     testImplementation("com.typesafe:config:1.4.8")
@@ -132,9 +123,6 @@ tasks.processTestResources {
 }
 
 tasks.test {
-    if (System.getenv("CIRCLECI") != null) {
-        maxHeapSize = "1G"
-    }
     environment("message", "test env")
     environment("emptyMessage", "")
     finalizedBy(tasks.jacocoTestReport)
@@ -180,75 +168,49 @@ gradlePlugin {
     }
 }
 
-publishing {
-    publications {
-        create<MavenPublication>("mavenJava") {
-            from(components["java"])
+mavenPublishing {
+    publishToMavenCentral(automaticRelease = true)
+    signAllPublications()
 
-            groupId = "io.github.sfali23"
-            artifactId = "gradle-semantic-build-versioning"
+    coordinates("io.github.sfali23", "gradle-semantic-build-versioning")
 
-            pom {
-                name.set("Gradle Semantic Build Versioning Plugin")
-                description.set("This is a Gradle settings-plugin that provides support for semantic versioning of builds.")
-                url.set("https://github.com/sfali23/gradle-semantic-build-versioning")
+    pom {
+        name.set("Gradle Semantic Build Versioning Plugin")
+        description.set("This is a Gradle settings-plugin that provides support for semantic versioning of builds.")
+        url.set("https://github.com/sfali23/gradle-semantic-build-versioning")
 
-                licenses {
-                    license {
-                        name.set("The Apache License, Version 2.0")
-                        url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
-                    }
-                }
-
-                developers {
-                    developer {
-                        id.set("sfali23")
-                        name.set("Syed Farhan Ali")
-                        email.set("f.syed.ali@gmail.com")
-                    }
-                }
-
-                scm {
-                    connection.set("scm:git:git://github.com/sfali23/gradle-semantic-build-versioning.git")
-                    developerConnection.set("scm:git:ssh://github.com:sfali23/gradle-semantic-build-versioning.git")
-                    url.set("https://github.com/sfali23/gradle-semantic-build-versioning/tree/main")
-                }
+        licenses {
+            license {
+                name.set("The Apache License, Version 2.0")
+                url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
             }
         }
-    }
-}
 
-// Configure jar signing and signing credentials
-signing {
-    sign(publishing.publications["mavenJava"])
+        developers {
+            developer {
+                id.set("sfali23")
+                name.set("Syed Farhan Ali")
+                email.set("f.syed.ali@gmail.com")
+            }
+        }
 
-    useInMemoryPgpKeys(
-        project.findProperty("signing.secretKey") as String? ?: System.getenv("SIGNING_SECRET_KEY"),
-        project.findProperty("signing.password") as String? ?: System.getenv("SIGNING_PASSWORD"),
-    )
-}
-
-nexusPublishing {
-    repositories {
-        sonatype {
-            nexusUrl.set(uri("https://ossrh-staging-api.central.sonatype.com/service/local/"))
-            snapshotRepositoryUrl.set(uri("https://central.sonatype.com/repository/maven-snapshots/"))
+        scm {
+            connection.set("scm:git:git://github.com/sfali23/gradle-semantic-build-versioning.git")
+            developerConnection.set("scm:git:ssh://github.com:sfali23/gradle-semantic-build-versioning.git")
+            url.set("https://github.com/sfali23/gradle-semantic-build-versioning/tree/main")
         }
     }
 }
 
 semverrelease {
     startingVersion.set("0.2.0")
+    addUnReleasedCommitsToTagComment.set(true)
 }
 
 tasks.named("createTag") {
-    finalizedBy("publishToSonatype", "closeSonatypeStagingRepository")
+    dependsOn("publishToMavenCentral")
 }
 
-tasks.withType(InitializeNexusStagingRepository::class.java).configureEach {
-    shouldRunAfter(tasks.withType(Sign::class.java))
-}
-
-tasks.named("closeSonatypeStagingRepository") {
-    finalizedBy("pushTag")
+tasks.named("publishToMavenCentral") {
+    dependsOn("setReleaseVersion")
 }
