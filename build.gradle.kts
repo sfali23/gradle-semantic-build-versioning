@@ -11,6 +11,8 @@ plugins {
     id("io.github.sfali23.gradle-semantic-build-versioning") version ("0.2.0")
 }
 
+group = "io.github.sfali23"
+
 spotless {
     java {
         target("src/**/*.java")
