@@ -38,13 +38,6 @@ spotless {
     }
 }
 
-/*tasks.withType<TagTask> {
-    dependsOn(tasks.named("publishPlugins"))
-}
-tasks.named("publishPlugins").configure {
-    dependsOn(tasks.named("build"))
-}*/
-
 repositories {
     mavenCentral()
     gradlePluginPortal()
@@ -257,7 +250,9 @@ signing {
     val signingPassword: String? by project
 
     useInMemoryPgpKeys(signingKey, signingPassword)
-    sign(publishing.publications["mavenJava"])
+    publishing.publications.withType<MavenPublication>().configureEach {
+        sign(this)
+    }
 }
 
 nexusPublishing {
