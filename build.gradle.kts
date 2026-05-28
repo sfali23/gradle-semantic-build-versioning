@@ -219,13 +219,13 @@ publishing {
 }
 
 // Configure jar signing and signing credentials
-signing {
-    val signingKey: String? by project
-    val signingPassword: String? by project
-    val signingKeyId: String? by project
+val signingKey: String? by project
+val signingPassword: String? by project
+val signingKeyId: String? by project
 
-    // Only sign for releases, not snapshots
-    if (!version.toString().endsWith("-SNAPSHOT")) {
+// Only configure signing for releases, not snapshots
+if (!project.hasProperty("version") || !project.version.toString().endsWith("-SNAPSHOT")) {
+    signing {
         useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
         sign(publishing.publications["mavenJava"])
     }
