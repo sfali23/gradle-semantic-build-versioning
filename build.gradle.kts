@@ -127,9 +127,6 @@ tasks.processTestResources {
 }
 
 tasks.test {
-    if (System.getenv("CIRCLECI") != null) {
-        maxHeapSize = "1G"
-    }
     environment("message", "test env")
     environment("emptyMessage", "")
     finalizedBy(tasks.jacocoTestReport)
@@ -173,91 +170,91 @@ gradlePlugin {
             tags.set(listOf("versioning", "semantic-versioning", "git", "build-versioning", "auto-versioning", "version"))
         }
     }
+}
 
-    publishing {
-        publications {
-            create<MavenPublication>("mavenJava") {
-                from(components["java"])
+publishing {
+    publications {
+        create<MavenPublication>("mavenJava") {
+            from(components["java"])
 
-                groupId = "io.github.sfali23"
-                artifactId = "gradle-semantic-build-versioning"
+            groupId = "io.github.sfali23"
+            artifactId = "gradle-semantic-build-versioning"
 
-                pom {
-                    name.set("Gradle Semantic Build Versioning Plugin")
-                    description.set("This is a Gradle settings-plugin that provides support for semantic versioning of builds.")
-                    url.set("https://github.com/sfali23/gradle-semantic-build-versioning")
+            pom {
+                name.set("Gradle Semantic Build Versioning Plugin")
+                description.set("This is a Gradle settings-plugin that provides support for semantic versioning of builds.")
+                url.set("https://github.com/sfali23/gradle-semantic-build-versioning")
 
-                    licenses {
-                        license {
-                            name.set("The Apache License, Version 2.0")
-                            url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
-                        }
+                licenses {
+                    license {
+                        name.set("The Apache License, Version 2.0")
+                        url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
                     }
+                }
 
-                    developers {
-                        developer {
-                            id.set("sfali23")
-                            name.set("Syed Farhan Ali")
-                            email.set("f.syed.ali@gmail.com")
-                        }
+                developers {
+                    developer {
+                        id.set("sfali23")
+                        name.set("Syed Farhan Ali")
+                        email.set("f.syed.ali@gmail.com")
                     }
+                }
 
-                    scm {
-                        connection.set("scm:git:git://github.com/sfali23/gradle-semantic-build-versioning.git")
-                        developerConnection.set("scm:git:ssh://github.com:sfali23/gradle-semantic-build-versioning.git")
-                        url.set("https://github.com/sfali23/gradle-semantic-build-versioning/tree/main")
-                    }
+                scm {
+                    connection.set("scm:git:git://github.com/sfali23/gradle-semantic-build-versioning.git")
+                    developerConnection.set("scm:git:ssh://github.com:sfali23/gradle-semantic-build-versioning.git")
+                    url.set("https://github.com/sfali23/gradle-semantic-build-versioning/tree/main")
                 }
             }
         }
     }
+}
 
-    signing {
-        val signingKey: String? by project
-        val signingPassword: String? by project
+signing {
+    val signingKey: String? by project
+    val signingPassword: String? by project
 
-        useInMemoryPgpKeys(signingKey, signingPassword)
-        sign(publishing.publications["mavenJava"])
-    }
+    useInMemoryPgpKeys(signingKey, signingPassword)
+    sign(publishing.publications["mavenJava"])
+}
 
-    nexusPublishing {
-        repositories {
-            sonatype {
-                nexusUrl.set(uri("https://ossrh-staging-api.central.sonatype.com/service/local/"))
-                snapshotRepositoryUrl.set(uri("https://central.sonatype.com/repository/maven-snapshots/"))
+nexusPublishing {
+    repositories {
+        sonatype {
+            nexusUrl.set(uri("https://ossrh-staging-api.central.sonatype.com/service/local/"))
+            snapshotRepositoryUrl.set(uri("https://central.sonatype.com/repository/maven-snapshots/"))
 
-                // Configure Sonatype credentials
-                val sonatypeUsername: String? by project
-                val sonatypePassword: String? by project
+            // Configure Sonatype credentials
+            val sonatypeUsername: String? by project
+            val sonatypePassword: String? by project
 
-                username.set(sonatypeUsername)
-                password.set(sonatypePassword)
-            }
+            username.set(sonatypeUsername)
+            password.set(sonatypePassword)
         }
     }
+}
 
-    semverrelease {
-        startingVersion.set("0.2.0")
-        extraReleaseBranches.set(listOf("fix_publishing"))
-    }
+semverrelease {
+    startingVersion.set("0.2.0")
+    extraReleaseBranches.set(listOf("fix_publishing"))
+}
 
-    tasks.matching { it.name == "publishToSonatype" }.configureEach {
-        dependsOn("setReleaseVersion")
-    }
+tasks.matching { it.name == "publishToSonatype" }.configureEach {
+    dependsOn("setReleaseVersion")
+}
 
-    tasks.matching { it.name == "closeAndReleaseSonatypeStagingRepository" }.configureEach {
-        dependsOn("publishToSonatype")
-    }
+tasks.matching { it.name == "closeAndReleaseSonatypeStagingRepository" }.configureEach {
+    dependsOn("publishToSonatype")
+}
 
-    tasks.named("createTag") {
-        dependsOn("closeAndReleaseSonatypeStagingRepository")
-    }
+tasks.named("createTag") {
+    dependsOn("closeAndReleaseSonatypeStagingRepository")
+}
 
-    tasks.named("pushTag") {
-        dependsOn("createTag")
-    }
+tasks.named("pushTag") {
+    dependsOn("createTag")
+}
 
-    tasks.withType(InitializeNexusStagingRepository::class.java).configureEach {
-        shouldRunAfter(tasks.withType(Sign::class.java))
-    }
+tasks.withType(InitializeNexusStagingRepository::class.java).configureEach {
+    shouldRunAfter(tasks.withType(Sign::class.java))
 }
