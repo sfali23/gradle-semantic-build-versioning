@@ -210,38 +210,6 @@ publishing {
                 }
             }
         }
-        
-        // Configure plugin publication metadata
-        publications.withType<MavenPublication> {
-            if (name != "mavenJava") {
-                pom {
-                    name.set("Gradle Semantic Build Versioning Plugin")
-                    description.set("This is a Gradle settings-plugin that provides support for semantic versioning of builds.")
-                    url.set("https://github.com/sfali23/gradle-semantic-build-versioning")
-
-                    licenses {
-                        license {
-                            name.set("The Apache License, Version 2.0")
-                            url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
-                        }
-                    }
-
-                    developers {
-                        developer {
-                            id.set("sfali23")
-                            name.set("Syed Farhan Ali")
-                            email.set("f.syed.ali@gmail.com")
-                        }
-                    }
-
-                    scm {
-                        connection.set("scm:git:git://github.com/sfali23/gradle-semantic-build-versioning.git")
-                        developerConnection.set("scm:git:ssh://github.com:sfali23/gradle-semantic-build-versioning.git")
-                        url.set("https://github.com/sfali23/gradle-semantic-build-versioning/tree/main")
-                    }
-                }
-            }
-        }
     }
 }
 
@@ -250,9 +218,7 @@ signing {
     val signingPassword: String? by project
 
     useInMemoryPgpKeys(signingKey, signingPassword)
-    publishing.publications.withType<MavenPublication>().configureEach {
-        sign(this)
-    }
+    sign(publishing.publications["mavenJava"])
 }
 
 nexusPublishing {
