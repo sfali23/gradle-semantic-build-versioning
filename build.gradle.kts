@@ -220,14 +220,15 @@ publishing {
     }
 }
 
-signing {
-    val signingKeyId: String? by project
-    val signingKey: String? by project
-    val signingPassword: String? by project
-
-    useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
-    sign(publishing.publications["mavenJava"])
-}
+// Temporarily disable signing for testing
+// signing {
+//     val signingKeyId: String? by project
+//     val signingKey: String? by project
+//     val signingPassword: String? by project
+//
+//     useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
+//     sign(publishing.publications["mavenJava"])
+// }
 
 nexusPublishing {
     repositories {
