@@ -43,7 +43,6 @@ abstract class SemanticBuildVersioningPlugin : Plugin<Project> {
             it.releaseTagComment.set(extension.releaseTagComment)
             it.addUnReleasedCommitsToTagComment.set(extension.addUnReleasedCommitsToTagComment)
             it.workingDirectory.set(project.projectDir)
-            it.dependsOn("setReleaseVersion")
         }
 
         project.tasks.register("pushTag", PushTagTask::class.java) {
