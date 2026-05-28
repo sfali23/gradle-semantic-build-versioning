@@ -10,6 +10,9 @@ import org.eclipse.jgit.revwalk.RevCommit
 import org.eclipse.jgit.revwalk.RevWalk
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder
 import org.eclipse.jgit.transport.PushResult
+import org.eclipse.jgit.transport.SshSessionFactory
+import org.eclipse.jgit.transport.sshd.SshdSessionFactoryBuilder
+import org.eclipse.jgit.util.FS
 import java.io.File
 import java.io.IOException
 import java.util.*
@@ -70,6 +73,7 @@ class JGitAdapter(workingDir: File, initialize: Boolean = false) {
     fun createTag(tag: String, annotated: Boolean): Ref? = createTag(tag, annotated, null)
 
     fun pushTag(tag: String): List<PushResult> {
+        configureJGitSsh()
         val ref = getTag(tag) ?: throw RuntimeException("Tag $tag not found")
         return git.push().add(ref).call().toList().filterNotNull()
     }
@@ -164,6 +168,19 @@ class JGitAdapter(workingDir: File, initialize: Boolean = false) {
 
         private fun getNonNullObjectId(ref: Ref): ObjectId {
             return Optional.ofNullable(ref.peeledObjectId).orElseGet { ref.objectId }
+        }
+
+        private fun configureJGitSsh() {
+            if (SshSessionFactory.getInstance() != null) {
+                return
+            }
+
+            val sshSessionFactory = SshdSessionFactoryBuilder()
+                .setHomeDirectory(FS.DETECTED.userHome())
+                .setSshDirectory(FS.DETECTED.userHome().resolve(".ssh"))
+                .build(null)
+
+            SshSessionFactory.setInstance(sshSessionFactory)
         }
     }
 }

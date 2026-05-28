@@ -40,7 +40,6 @@ repositories {
 }
 
 java {
-   // withJavadocJar()
     withSourcesJar()
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(25))
@@ -96,6 +95,7 @@ val createJacocoAgentClasspathFile by tasks.registering {
 
 dependencies {
     implementation("org.eclipse.jgit:org.eclipse.jgit:7.6.0.202603022253-r")
+    implementation("org.eclipse.jgit:org.eclipse.jgit.ssh.apache:7.6.0.202603022253-r")
 
     testImplementation("org.eclipse.jgit:org.eclipse.jgit.junit:7.6.0.202603022253-r")
     testImplementation("com.typesafe:config:1.4.8")
@@ -204,6 +204,7 @@ mavenPublishing {
 
 semverrelease {
     startingVersion.set("0.2.0")
+    addUnReleasedCommitsToTagComment.set(true)
     extraReleaseBranches.set(listOf("fix_publishing"))
 }
 
