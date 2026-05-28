@@ -224,8 +224,11 @@ signing {
     val signingPassword: String? by project
     val signingKeyId: String? by project
 
-    useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
-    sign(publishing.publications["mavenJava"])
+    // Only sign for releases, not snapshots
+    if (!version.toString().endsWith("-SNAPSHOT")) {
+        useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
+        sign(publishing.publications["mavenJava"])
+    }
 }
 
 nexusPublishing {
