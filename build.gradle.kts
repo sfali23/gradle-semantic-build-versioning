@@ -207,6 +207,10 @@ semverrelease {
     addUnReleasedCommitsToTagComment.set(true)
 }
 
+tasks.named("pushTag") {
+    dependsOn("createTag")
+}
+
 tasks.named("createTag") {
     dependsOn("publishToMavenCentral")
 }
