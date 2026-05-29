@@ -18,7 +18,10 @@ class SemanticBuildVersion(workingDir: File, val baseConfig: SemanticBuildVersio
 
     fun latestVersion(): Version? {
         return adapter.getTagsForCurrentBranch()
-            .map { it.replace(tagPrefix, "") }
+            .filter { it.startsWith(tagPrefix) }
+            .map {
+                println("tag: $it")
+                it.replace(tagPrefix, "") }
             .mapNotNull { version -> runCatching { Version.create(version, snapshotSuffix, preReleaseConfig) }.getOrNull() }
             .sortedWith(Version.VERSION_COMPARATOR).getOrNull(0)
     }
