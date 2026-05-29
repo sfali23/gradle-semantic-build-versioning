@@ -47,7 +47,7 @@ class SemanticBuildVersion(workingDir: File, val baseConfig: SemanticBuildVersio
     private fun snapshotRequired(currentBranch: String, hotfixRequired: Boolean): Boolean {
         val notAReleaseBranch = !baseConfig.isReleaseBranch(currentBranch)
         val snapshotFlag = baseConfig.snapshot
-        if (notAReleaseBranch) {
+        if (notAReleaseBranch && !hotfixRequired) {
             logger.warn(
                 "Current configuration doesn't allow to create new tag from current branch ({}), creating snapshot version",
                 currentBranch
