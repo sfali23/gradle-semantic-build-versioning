@@ -13,7 +13,7 @@ spotless:
 	$(GRADLE) spotlessApply
 
 publishLocal:
-	$(GRADLE) publishToMavenLocal
+	$(GRADLE) setReleaseVersion publishToMavenLocal
 
 release:
 	$(GRADLE) setReleaseVersion createTag pushTag
