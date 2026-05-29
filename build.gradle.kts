@@ -4,7 +4,7 @@ plugins {
     `java-gradle-plugin`
     id("com.vanniktech.maven.publish") version "0.36.0"
     id("com.diffplug.spotless") version "8.5.1"
-    id("io.github.sfali23.gradle-semantic-build-versioning") version ("0.3.0")
+    id("io.github.sfali23.gradle-semantic-build-versioning") version ("0.3.0-SNAPSHOT+c952135")
 }
 
 group = "io.github.sfali23"
