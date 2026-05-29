@@ -66,6 +66,7 @@ class JGitAdapter(workingDir: File, initialize: Boolean = false) {
     fun createTag(tag: String, annotated: Boolean, message: String?): Ref? =
         git.tag()
             .setName(tag)
+            .setForceUpdate(true)
             .setAnnotated(annotated)
             .let { if (annotated) it.setMessage(message) else it }
             .call()
